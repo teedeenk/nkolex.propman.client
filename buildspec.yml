@@ -13,4 +13,4 @@ phases:
 artifacts:
   files:
     - "**/*"
-  base-directory: .
+  base-directory: dist/nkolex.propman.client/browser
