@@ -227,6 +227,18 @@
       </svg>
       <h1>Hello, {{ title }}</h1>
       <p>Congratulations! Your automated deployment is running....nkolex 🎉</p>
+      @if (weatherData.length) {
+        <div>
+          <h2>Weather Forecast</h2>
+          <ul>
+            @for (item of weatherData; track item.date) {
+              <li>
+                {{ item.date }} - {{ item.temperatureC }}°C - {{ item.summary }}
+              </li>
+            }
+          </ul>
+        </div>
+      }
     </div>
     <div class="divider" role="separator" aria-label="Divider"></div>
     <div class="right-side">
