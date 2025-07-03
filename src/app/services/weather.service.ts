@@ -7,7 +7,7 @@ import { Observable } from "rxjs";
 })
 
 export class WeatherService {
-  private apiUrl = "http://nkolexpropmanserver-env.eba-kvm5usp9.eu-north-1.elasticbeanstalk.com/weatherforecast";
+  private apiUrl = "https://cnwnr4b3t9.execute-api.eu-north-1.amazonaws.com/prod/weatherforecast";
 
   constructor(private http: HttpClient) {}
 
