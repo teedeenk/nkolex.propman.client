@@ -10,7 +10,7 @@ import { WeatherService } from './services/weather.service';
   styleUrl: './app.component.css'
 })
 export class AppComponent implements OnInit {
-  title = 'nkolex.propman.client';
+  title = 'propman';
   weatherData: any[] = [];
 
   constructor(private weatherService: WeatherService) {}
