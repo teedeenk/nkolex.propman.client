@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
-import { Router,RouterOutlet } from '@angular/router';
+import { Router,RouterOutlet, NavigationEnd } from '@angular/router';
 import { WeatherService } from './services/weather.service';
+import { filter } from 'rxjs/operators';
 
 @Component({
   selector: 'app-root',
@@ -12,11 +13,18 @@ import { WeatherService } from './services/weather.service';
 export class AppComponent implements OnInit {
   title = 'propman';
   weatherData: any[] = [];
+  showLandingContent = true;
 
   constructor(
     private weatherService: WeatherService,
     private router: Router
-  ) {}
+  ) {
+      this.router.events.pipe(
+        filter(event => event instanceof NavigationEnd)
+      ).subscribe((event: NavigationEnd) => {
+        this.showLandingContent = event.url === '/';
+      });
+  }
 
   ngOnInit() {
     this.weatherService.getweather().subscribe({

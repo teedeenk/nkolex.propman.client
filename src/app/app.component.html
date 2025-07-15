@@ -192,21 +192,24 @@
               id="path1" />
           </g>
       </svg>
-      
-      <h1>Welcome to propman</h1>
-      <p>Create an account or sign in if you already have an account</p>
-      <button (click)="onCreateAccount()">Create Account</button> <button (click)="onSignIn()">Sign In</button>
-      @if (weatherData.length) {
-        <div>
-          <h2>Weather Forecast</h2>
-          <ul>
-            @for (item of weatherData; track item.date) {
-              <li>
-                {{ item.date }} - {{ item.temperatureC }}°C - {{ item.summary }}
-              </li>
-            }
-          </ul>
-        </div>
+      @if (showLandingContent) {
+      <div>
+        <h1>Welcome to propman</h1>
+        <p>Create an account or sign in if you already have an account</p>
+        <button (click)="onCreateAccount()">Create Account</button> <button (click)="onSignIn()">Sign In</button>
+        @if (weatherData.length) {
+          <div>
+            <h2>Weather Forecast</h2>
+            <ul>
+              @for (item of weatherData; track item.date) {
+                <li>
+                  {{ item.date }} - {{ item.temperatureC }}°C - {{ item.summary }}
+                </li>
+              }
+            </ul>
+          </div>
+        }
+      </div>
       }
     </div>
   </div>
