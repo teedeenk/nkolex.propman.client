@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { RouterOutlet } from '@angular/router';
+import { Router,RouterOutlet } from '@angular/router';
 import { WeatherService } from './services/weather.service';
 
 @Component({
@@ -13,7 +13,10 @@ export class AppComponent implements OnInit {
   title = 'propman';
   weatherData: any[] = [];
 
-  constructor(private weatherService: WeatherService) {}
+  constructor(
+    private weatherService: WeatherService,
+    private router: Router
+  ) {}
 
   ngOnInit() {
     this.weatherService.getweather().subscribe({
@@ -23,6 +26,16 @@ export class AppComponent implements OnInit {
       },
       error: err => console.error('Failed to load weather data:', err)
     });
+  }
+
+    onCreateAccount() {
+      console.log('Create account button clicked!');
+      this.router.navigate(['/register']);
+  }
+
+  onSignIn() {
+    console.log('Sign in button clicked!');
+    this.router.navigate(['/login']);
   }
 }
 
