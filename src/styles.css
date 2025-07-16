@@ -1,4 +1,4 @@
-@import './styles/forms.css';
+@import "./styles/forms.css";
 
 button {
   background: linear-gradient(90deg, #ff6a00, #ee0979);
@@ -10,7 +10,7 @@ button {
   cursor: pointer;
   transition: all 0.3s ease;
   margin-top: 1rem;
-  margin-right: 1rem; 
+  margin-right: 1rem;
 }
 
 button:hover {
