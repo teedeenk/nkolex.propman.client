@@ -14,7 +14,9 @@ export class RegisterComponent {
   showConfirmPassword = false;
   
   formData = {
-    fullName: '',
+    name: '',
+    surname: '',
+    phoneNumber: '',
     email: '',
     password: '',
     confirmPassword: '',

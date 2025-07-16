@@ -7,14 +7,38 @@
 
         <form (ngSubmit)="onSubmit()" #registerForm="ngForm">
             <div class="form-group">
-                <label class="form-label" for="fullName">Full Name</label>
+                <label class="form-label" for="name">Name</label>
                 <input 
                     type="text" 
                     id="fullName" 
                     class="form-input" 
                     placeholder="Enter your full name"
-                    [(ngModel)]="formData.fullName"
+                    [(ngModel)]="formData.name"
                     name="fullName"
+                    required
+                >
+            </div>
+            <div class="form-group">
+                <label class="form-label" for="surname">Surname</label>
+                <input 
+                    type="text" 
+                    id="surname" 
+                    class="form-input" 
+                    placeholder="Enter your surname"
+                    [(ngModel)]="formData.surname"
+                    name="surname"
+                    required
+                >
+            </div>
+            <div class="form-group">
+                <label class="form-label" for="phoneNumber">Phone Number</label>
+                <input 
+                    type="tel" 
+                    id="phoneNumber" 
+                    class="form-input" 
+                    placeholder="Enter your phone number"
+                    [(ngModel)]="formData.phoneNumber"
+                    name="phoneNumber"
                     required
                 >
             </div>
