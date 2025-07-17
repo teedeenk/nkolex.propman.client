@@ -25,15 +25,14 @@ interface CreateAccountResponse {
   standalone: true,
   imports: [FormsModule],
   templateUrl: './register.component.html',
-  styleUrl: './register.component.css'
+  styleUrl: './register.component.css',
 })
-
 export class RegisterComponent {
   showPassword = false;
   showConfirmPassword = false;
   isLoading = false;
   errorMessage = '';
-  
+
   formData: CreateAccountRequest = {
     name: '',
     surname: '',
@@ -41,10 +40,11 @@ export class RegisterComponent {
     email: '',
     password: '',
     confirmPassword: '',
-    agreeToTerms: false
+    agreeToTerms: false,
   };
 
-  private apiUrl = 'https://localhost:7000/api/auth/register';
+  private apiUrl =
+    'https://cnwnr4b3t9.execute-api.eu-north-1.amazonaws.com/prod/account/register';
 
   constructor(
     private location: Location,
@@ -70,12 +70,24 @@ export class RegisterComponent {
       alert('Passwords do not match');
       return;
     }
-    
+
     console.log('Form submitted:', this.formData);
-    alert('Account created successfully!');
+    this.isLoading = true;
+    this.http.post(this.apiUrl, this.formData).subscribe({
+      next: (response) => {
+        this.isLoading = false;
+        alert('Account created successfully!');
+        this.router.navigate(['/login']);
+      },
+      error: (error) => {
+        this.isLoading = false;
+        this.errorMessage = 'An error occurred while creating the account.';
+        console.error(error);
+      },
+    });
   }
 
-    private validateForm(): boolean {
+  private validateForm(): boolean {
     if (!this.formData.name.trim()) {
       this.errorMessage = 'Name is required';
       return false;
@@ -116,7 +128,8 @@ export class RegisterComponent {
     }
 
     if (!this.formData.agreeToTerms) {
-      this.errorMessage = 'You must agree to the Terms of Service and Privacy Policy';
+      this.errorMessage =
+        'You must agree to the Terms of Service and Privacy Policy';
       return false;
     }
 
