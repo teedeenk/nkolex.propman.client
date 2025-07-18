@@ -44,7 +44,8 @@ export class RegisterComponent {
   };
 
   private apiUrl =
-    'https://cnwnr4b3t9.execute-api.eu-north-1.amazonaws.com/prod/account/register';
+    'https://cnwnr4b3t9.execute-api.eu-north-1.amazonaws.com/prod/account';
+  // private apiUrl = 'https://localhost:7286/account';
 
   constructor(
     private location: Location,
