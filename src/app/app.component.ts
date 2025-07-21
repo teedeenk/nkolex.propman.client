@@ -1,6 +1,5 @@
 import { Component, OnInit } from '@angular/core';
 import { Router, RouterOutlet, NavigationEnd } from '@angular/router';
-import { WeatherService } from './services/weather.service';
 import { filter } from 'rxjs/operators';
 
 @Component({
@@ -10,27 +9,17 @@ import { filter } from 'rxjs/operators';
   templateUrl: './app.component.html',
   styleUrl: './app.component.css',
 })
-export class AppComponent implements OnInit {
+export class AppComponent {
   title = 'propman';
   weatherData: any[] = [];
   showLandingContent = true;
 
-  constructor(private weatherService: WeatherService, private router: Router) {
+  constructor(private router: Router) {
     this.router.events
       .pipe(filter((event) => event instanceof NavigationEnd))
       .subscribe((event: NavigationEnd) => {
         this.showLandingContent = event.url === '/';
       });
-  }
-
-  ngOnInit() {
-    // this.weatherService.getweather().subscribe({
-    //   next: data => {
-    //     console.log('Weather data:', data);
-    //     this.weatherData = data;
-    //   },
-    //   error: err => console.error('Failed to load weather data:', err)
-    // });
   }
 
   onCreateAccount() {
