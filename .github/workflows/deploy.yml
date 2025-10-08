@@ -32,7 +32,7 @@ jobs:
 
       # 5️⃣ Deploy via SSH using rsync
       - name: Deploy to Droplet via rsync
-        uses: burnett01/rsync-deployments@v7.1.0
+        uses: burnett01/rsync-deployments@7.1.0
         with:
           switches: -avzr --delete
           path: dist/<your-app-name>/ # 👈 replace with your Angular output folder
