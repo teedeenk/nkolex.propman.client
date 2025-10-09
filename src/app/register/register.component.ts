@@ -3,6 +3,7 @@ import { Location } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
+import { environment } from '../../environments/environment';
 
 interface CreateAccountRequest {
   name: string;
@@ -43,9 +44,7 @@ export class RegisterComponent {
     agreeToTerms: false,
   };
 
-  private apiUrl =
-    'https://cnwnr4b3t9.execute-api.eu-north-1.amazonaws.com/prod/account';
-  // private apiUrl = 'https://localhost:7286/account';
+  private apiUrl = environment.apiUrl + '/account';
 
   constructor(
     private location: Location,
