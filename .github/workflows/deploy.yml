@@ -30,6 +30,20 @@ jobs:
       - name: Build Angular app
         run: npm run build -- --configuration production
 
+      - name: Debug - Check build output
+        run: |
+          echo "=== Listing dist contents ==="
+          ls -la /home/runner/work/nkolex.propman.client/nkolex.propman.client/dist/nkolex.propman.client/
+          echo ""
+          echo "=== Checking for production flag ==="
+          grep -r "production" /home/runner/work/nkolex.propman.client/nkolex.propman.client/dist/nkolex.propman.client/ | head -5
+          echo ""
+          echo "=== Checking for localhost ==="
+          grep -r "localhost" /home/runner/work/nkolex.propman.client/nkolex.propman.client/dist/nkolex.propman.client/ | head -5
+          echo ""
+          echo "=== Checking environment files ==="
+          cat src/environments/environment.prod.ts
+
       # 5️⃣ Deploy via SSH using rsync
       - name: Deploy to Droplet via rsync
         uses: burnett01/rsync-deployments@7.1.0
