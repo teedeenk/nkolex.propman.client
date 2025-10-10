@@ -37,8 +37,9 @@ jobs:
           echo ""
           echo "=== Angular.json fileReplacements ==="
           cat angular.json | grep -A 5 "fileReplacements"
-          - name: Build Angular app
-              run: npm run build -- --configuration production
+
+      - name: Build Angular app
+        run: npm run build -- --configuration production
 
       - name: Debug - Check build output
         run: |
