@@ -27,8 +27,18 @@ jobs:
         run: npm ci
 
       # 4️⃣ Build Angular app
-      - name: Build Angular app
-        run: ng build --configuration production
+      - name: Check environment files
+        run: |
+          echo "=== Development environment ==="
+          cat src/environments/environment.ts
+          echo ""
+          echo "=== Production environment ==="
+          cat src/environments/environment.prod.ts
+          echo ""
+          echo "=== Angular.json fileReplacements ==="
+          cat angular.json | grep -A 5 "fileReplacements"
+          - name: Build Angular app
+              run: npm run build -- --configuration production
 
       - name: Debug - Check build output
         run: |
