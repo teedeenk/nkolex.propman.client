@@ -15,6 +15,7 @@ export class AppComponent {
   showLandingContent = true;
 
   constructor(private router: Router) {
+    this.router.events.subscribe((e) => console.log('[Router Event]', e));
     this.router.events
       .pipe(filter((event) => event instanceof NavigationEnd))
       .subscribe((event: NavigationEnd) => {

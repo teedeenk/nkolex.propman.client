@@ -183,6 +183,7 @@
     'main ' + (showLandingContent ? 'landing-centered' : 'forms-top-aligned')
   "
 >
+  @if (showLandingContent) {
   <div class="content">
     <div class="left-side">
       <svg
@@ -206,15 +207,15 @@
           />
         </g>
       </svg>
-      @if (showLandingContent) {
+
       <div>
         <h1>Welcome to propman</h1>
         <p>Create an account or sign in if you already have an account</p>
         <button (click)="onCreateAccount()">Create Account</button>
         <button (click)="onSignIn()">Sign In</button>
       </div>
-      }
     </div>
   </div>
+  }
 </main>
 <router-outlet />
