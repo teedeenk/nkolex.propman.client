@@ -51,18 +51,21 @@ export class LoginComponent implements OnInit {
         next: (response) => {
           console.log('Login successful:', response);
           this.isLoading = false;
-          this.router
-            .navigate(['/dashboard'])
-            .then((ok) => {
-              console.log('navigate to /dashboard ok=', ok);
-            })
-            .catch((err) => console.error('navigate error', err));
+          this.router.navigate(['/dashboard']);
         },
         error: (error) => {
           this.isLoading = false;
-          this.formData.errorMessage =
-            error.message?.message || 'Login failed. Please try again.';
           console.error('Login error:', error);
+
+          if (error.error?.message) {
+            this.formData.errorMessage = error.error.message;
+          } else if (error.status === 401 || error.status === 500) {
+            this.formData.errorMessage = 'Invalid username or password';
+          } else if (error.status === 0) {
+            this.formData.errorMessage = 'Cannot connect to server';
+          } else {
+            this.formData.errorMessage = 'Login failed. Please try again.';
+          }
         },
       });
   }
