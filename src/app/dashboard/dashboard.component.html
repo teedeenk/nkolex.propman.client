@@ -1,17 +1,35 @@
-<!-- src/app/components/dashboard/dashboard.component.html -->
 <div class="dashboard-container">
-  <!-- Loading State -->
   <div *ngIf="isLoading" class="loading-spinner">
     <div class="spinner"></div>
     <p>Loading your dashboard...</p>
   </div>
 
-  <!-- Dashboard Content -->
   <div *ngIf="!isLoading" class="dashboard-content">
     <!-- Header -->
     <header class="dashboard-header">
       <div class="header-content">
         <div class="header-left">
+          <!-- Burger Menu Button -->
+          <button
+            class="burger-btn"
+            (click)="toggleMenu()"
+            aria-label="Toggle menu"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="24"
+              height="24"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+            >
+              <line x1="4" y1="6" x2="20" y2="6"></line>
+              <line x1="4" y1="12" x2="20" y2="12"></line>
+              <line x1="4" y1="18" x2="20" y2="18"></line>
+            </svg>
+          </button>
+
           <div class="logo">
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -21,8 +39,6 @@
               fill="none"
               stroke="currentColor"
               stroke-width="2"
-              stroke-linecap="round"
-              stroke-linejoin="round"
             >
               <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
               <line x1="3" y1="9" x2="21" y2="9"></line>
@@ -39,8 +55,6 @@
             fill="none"
             stroke="currentColor"
             stroke-width="2"
-            stroke-linecap="round"
-            stroke-linejoin="round"
           >
             <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
             <polyline points="16 17 21 12 16 7"></polyline>
@@ -51,9 +65,154 @@
       </div>
     </header>
 
+    <!-- Menu Overlay -->
+    <div *ngIf="isMenuOpen" class="menu-overlay" (click)="closeMenu()"></div>
+
+    <!-- Burger Menu Sidebar -->
+    <div class="burger-menu" [class.open]="isMenuOpen">
+      <div class="menu-header">
+        <h2>Menu</h2>
+        <button class="close-btn" (click)="closeMenu()">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="20"
+            height="20"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+          >
+            <line x1="18" y1="6" x2="6" y2="18"></line>
+            <line x1="6" y1="6" x2="18" y2="18"></line>
+          </svg>
+        </button>
+      </div>
+
+      <div class="menu-content">
+        <!-- Account Info Section -->
+        <div class="menu-section">
+          <h3 class="menu-section-title">Account Info</h3>
+
+          <div class="info-cards">
+            <div class="info-card blue">
+              <div class="info-icon">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="20"
+                  height="20"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                >
+                  <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                  <circle cx="12" cy="7" r="4"></circle>
+                </svg>
+              </div>
+              <div class="info-text">
+                <p class="info-label">Profile</p>
+                <p class="info-value">Complete</p>
+              </div>
+            </div>
+
+            <div class="info-card green">
+              <div class="info-icon">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="20"
+                  height="20"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                >
+                  <circle cx="12" cy="12" r="10"></circle>
+                  <polyline points="12 6 12 12 16 14"></polyline>
+                </svg>
+              </div>
+              <div class="info-text">
+                <p class="info-label">Last Login</p>
+                <p class="info-value">Just now</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Navigation Section -->
+        <div class="menu-section">
+          <h3 class="menu-section-title">Navigation</h3>
+
+          <nav class="menu-nav">
+            <button class="menu-item" (click)="navigateToProfile()">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="20"
+                height="20"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+              >
+                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                <circle cx="12" cy="7" r="4"></circle>
+              </svg>
+              <div class="menu-item-text">
+                <p class="menu-item-title">Manage Profile</p>
+                <p class="menu-item-desc">Update your information</p>
+              </div>
+            </button>
+
+            <button class="menu-item" (click)="navigateToSettings()">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="20"
+                height="20"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+              >
+                <circle cx="12" cy="12" r="3"></circle>
+                <path
+                  d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"
+                ></path>
+              </svg>
+              <div class="menu-item-text">
+                <p class="menu-item-title">Settings</p>
+                <p class="menu-item-desc">Configure your account</p>
+              </div>
+            </button>
+
+            <button class="menu-item" (click)="navigateToDocumentation()">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="20"
+                height="20"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+              >
+                <path
+                  d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"
+                ></path>
+                <polyline points="14 2 14 8 20 8"></polyline>
+                <line x1="16" y1="13" x2="8" y2="13"></line>
+                <line x1="16" y1="17" x2="8" y2="17"></line>
+                <polyline points="10 9 9 9 8 9"></polyline>
+              </svg>
+              <div class="menu-item-text">
+                <p class="menu-item-title">Documentation</p>
+                <p class="menu-item-desc">Browse guides</p>
+              </div>
+            </button>
+          </nav>
+        </div>
+      </div>
+    </div>
+
     <!-- Main Content -->
     <main class="dashboard-main">
-      <!-- Welcome Section -->
       <section class="welcome-section">
         <div class="welcome-card">
           <div class="welcome-content">
@@ -66,8 +225,6 @@
                 fill="none"
                 stroke="currentColor"
                 stroke-width="2"
-                stroke-linecap="round"
-                stroke-linejoin="round"
               >
                 <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
                 <circle cx="12" cy="7" r="4"></circle>
@@ -85,8 +242,6 @@
                   fill="none"
                   stroke="currentColor"
                   stroke-width="2"
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
                 >
                   <polyline points="20 6 9 17 4 12"></polyline>
                 </svg>
@@ -97,56 +252,7 @@
         </div>
       </section>
 
-      <!-- Stats Grid -->
       <section class="stats-grid">
-        <div class="stat-card">
-          <div class="stat-icon blue">
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              width="24"
-              height="24"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="2"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-            >
-              <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
-              <circle cx="12" cy="7" r="4"></circle>
-            </svg>
-          </div>
-          <div class="stat-info">
-            <h3>Profile</h3>
-            <p class="stat-value">Complete</p>
-            <p class="stat-description">Your account is active</p>
-          </div>
-        </div>
-
-        <div class="stat-card">
-          <div class="stat-icon green">
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              width="24"
-              height="24"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="2"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-            >
-              <circle cx="12" cy="12" r="10"></circle>
-              <polyline points="12 6 12 12 16 14"></polyline>
-            </svg>
-          </div>
-          <div class="stat-info">
-            <h3>Last Login</h3>
-            <p class="stat-value">Just now</p>
-            <p class="stat-description">Successful authentication</p>
-          </div>
-        </div>
-
         <div class="stat-card">
           <div class="stat-icon purple">
             <svg
@@ -157,8 +263,6 @@
               fill="none"
               stroke="currentColor"
               stroke-width="2"
-              stroke-linecap="round"
-              stroke-linejoin="round"
             >
               <path d="M12 20V10"></path>
               <path d="M18 20V4"></path>
@@ -167,164 +271,287 @@
           </div>
           <div class="stat-info">
             <h3>Activity</h3>
-            <p class="stat-value">0 events</p>
-            <p class="stat-description">No recent activity</p>
-          </div>
-        </div>
-      </section>
-
-      <!-- Action Cards -->
-      <section class="action-section">
-        <h2 class="section-title">Quick Actions</h2>
-        <div class="action-grid">
-          <div class="action-card">
-            <div class="action-icon">
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                width="28"
-                height="28"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="2"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-              >
-                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
-                <circle cx="12" cy="7" r="4"></circle>
-              </svg>
-            </div>
-            <h3>Manage Profile</h3>
-            <p>Update your personal information and preferences</p>
-            <button class="action-btn">
-              <span>View Profile</span>
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                width="16"
-                height="16"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="2"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-              >
-                <line x1="5" y1="12" x2="19" y2="12"></line>
-                <polyline points="12 5 19 12 12 19"></polyline>
-              </svg>
-            </button>
-          </div>
-
-          <div class="action-card">
-            <div class="action-icon">
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                width="28"
-                height="28"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="2"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-              >
-                <circle cx="12" cy="12" r="3"></circle>
-                <path
-                  d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"
-                ></path>
-              </svg>
-            </div>
-            <h3>Settings</h3>
-            <p>Configure your account settings and security options</p>
-            <button class="action-btn">
-              <span>Open Settings</span>
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                width="16"
-                height="16"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="2"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-              >
-                <line x1="5" y1="12" x2="19" y2="12"></line>
-                <polyline points="12 5 19 12 12 19"></polyline>
-              </svg>
-            </button>
-          </div>
-
-          <div class="action-card">
-            <div class="action-icon">
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                width="28"
-                height="28"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="2"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-              >
-                <path
-                  d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"
-                ></path>
-                <polyline points="14 2 14 8 20 8"></polyline>
-                <line x1="16" y1="13" x2="8" y2="13"></line>
-                <line x1="16" y1="17" x2="8" y2="17"></line>
-                <polyline points="10 9 9 9 8 9"></polyline>
-              </svg>
-            </div>
-            <h3>Documentation</h3>
-            <p>Browse guides and learn how to use the platform</p>
-            <button class="action-btn">
-              <span>Read Docs</span>
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                width="16"
-                height="16"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="2"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-              >
-                <line x1="5" y1="12" x2="19" y2="12"></line>
-                <polyline points="12 5 19 12 12 19"></polyline>
-              </svg>
-            </button>
-          </div>
-        </div>
-      </section>
-
-      <!-- Recent Activity Section -->
-      <section class="activity-section">
-        <h2 class="section-title">Recent Activity</h2>
-        <div class="activity-card">
-          <div class="empty-state">
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              width="64"
-              height="64"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="1.5"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-            >
-              <circle cx="12" cy="12" r="10"></circle>
-              <line x1="12" y1="8" x2="12" y2="12"></line>
-              <line x1="12" y1="16" x2="12.01" y2="16"></line>
-            </svg>
-            <h3>No Activity Yet</h3>
-            <p>
-              Your recent activities will appear here once you start using the
-              platform.
+            <p class="stat-value">1 event</p>
+            <p class="stat-description">
+              Electrician coming on Monday, 10 AM - 12 PM
             </p>
+          </div>
+        </div>
+      </section>
+      <section class="expense-stats-grid">
+        <div class="expense-card rental">
+          <div class="expense-header">
+            <div class="expense-icon">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="24"
+                height="24"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+              >
+                <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+                <polyline points="9 22 9 12 15 12 15 22"></polyline>
+              </svg>
+            </div>
+            <div class="expense-trend positive">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="16"
+                height="16"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+              >
+                <polyline points="23 6 13.5 15.5 8.5 10.5 1 18"></polyline>
+                <polyline points="17 6 23 6 23 12"></polyline>
+              </svg>
+            </div>
+          </div>
+          <h3 class="expense-title">Rental Income</h3>
+          <p class="expense-amount">R 12,500</p>
+          <p class="expense-change positive">+8.5% from last month</p>
+          <div class="expense-bar">
+            <div class="expense-bar-fill rental" style="width: 85%"></div>
+          </div>
+        </div>
+
+        <div class="expense-card maintenance">
+          <div class="expense-header">
+            <div class="expense-icon">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="24"
+                height="24"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+              >
+                <path
+                  d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"
+                ></path>
+              </svg>
+            </div>
+            <div class="expense-trend negative">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="16"
+                height="16"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+              >
+                <polyline points="23 18 13.5 8.5 8.5 13.5 1 6"></polyline>
+                <polyline points="17 18 23 18 23 12"></polyline>
+              </svg>
+            </div>
+          </div>
+          <h3 class="expense-title">Maintenance</h3>
+          <p class="expense-amount">R 2,800</p>
+          <p class="expense-change negative">+12% from last month</p>
+          <div class="expense-bar">
+            <div class="expense-bar-fill maintenance" style="width: 45%"></div>
+          </div>
+        </div>
+
+        <div class="expense-card wages">
+          <div class="expense-header">
+            <div class="expense-icon">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="24"
+                height="24"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+              >
+                <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path>
+                <circle cx="9" cy="7" r="4"></circle>
+                <path d="M22 21v-2a4 4 0 0 0-3-3.87"></path>
+                <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+              </svg>
+            </div>
+            <div class="expense-trend neutral">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="16"
+                height="16"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+              >
+                <line x1="5" y1="12" x2="19" y2="12"></line>
+              </svg>
+            </div>
+          </div>
+          <h3 class="expense-title">Wages</h3>
+          <p class="expense-amount">R 5,200</p>
+          <p class="expense-change neutral">No change</p>
+          <div class="expense-bar">
+            <div class="expense-bar-fill wages" style="width: 70%"></div>
+          </div>
+        </div>
+
+        <div class="expense-card utilities">
+          <div class="expense-header">
+            <div class="expense-icon">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="24"
+                height="24"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+              >
+                <polygon
+                  points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"
+                ></polygon>
+              </svg>
+            </div>
+            <div class="expense-trend positive">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="16"
+                height="16"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+              >
+                <polyline points="23 18 13.5 8.5 8.5 13.5 1 6"></polyline>
+                <polyline points="17 18 23 18 23 12"></polyline>
+              </svg>
+            </div>
+          </div>
+          <h3 class="expense-title">Utilities</h3>
+          <p class="expense-amount">R 1,450</p>
+          <p class="expense-change positive">-5.2% from last month</p>
+          <div class="expense-bar">
+            <div class="expense-bar-fill utilities" style="width: 30%"></div>
+          </div>
+        </div>
+      </section>
+      <section class="activity-section">
+        <h2 class="section-title">Income & Expenses Overview</h2>
+        <div class="chart-card">
+          <div class="chart-header">
+            <div class="chart-legend">
+              <div class="legend-item">
+                <span class="legend-color income"></span>
+                <span class="legend-label">Income</span>
+              </div>
+              <div class="legend-item">
+                <span class="legend-color expenses"></span>
+                <span class="legend-label">Expenses</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="chart-container">
+            <div class="chart-wrapper">
+              <div class="chart-bars">
+                <div class="month-group" *ngFor="let data of financialData">
+                  <div class="bars">
+                    <div
+                      class="bar-container"
+                      [title]="'Income: ' + formatCurrency(data.income)"
+                    >
+                      <div
+                        class="bar income"
+                        [style.height.%]="getBarHeight(data.income)"
+                      >
+                        <span class="bar-value">{{
+                          formatCurrency(data.income)
+                        }}</span>
+                      </div>
+                    </div>
+                    <div
+                      class="bar-container"
+                      [title]="'Expenses: ' + formatCurrency(data.expenses)"
+                    >
+                      <div
+                        class="bar expenses"
+                        [style.height.%]="getBarHeight(data.expenses)"
+                      >
+                        <span class="bar-value">{{
+                          formatCurrency(data.expenses)
+                        }}</span>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="month-label">{{ data.month }}</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="chart-summary">
+            <div class="summary-item">
+              <div class="summary-icon income">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="20"
+                  height="20"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                >
+                  <line x1="12" y1="19" x2="12" y2="5"></line>
+                  <polyline points="5 12 12 5 19 12"></polyline>
+                </svg>
+              </div>
+              <div class="summary-text">
+                <p class="summary-label">Total Income</p>
+                <p class="summary-value">R 31,900</p>
+              </div>
+            </div>
+            <div class="summary-item">
+              <div class="summary-icon expenses">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="20"
+                  height="20"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                >
+                  <line x1="12" y1="5" x2="12" y2="19"></line>
+                  <polyline points="19 12 12 19 5 12"></polyline>
+                </svg>
+              </div>
+              <div class="summary-text">
+                <p class="summary-label">Total Expenses</p>
+                <p class="summary-value">R 22,700</p>
+              </div>
+            </div>
+            <div class="summary-item">
+              <div class="summary-icon net">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="20"
+                  height="20"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                >
+                  <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline>
+                </svg>
+              </div>
+              <div class="summary-text">
+                <p class="summary-label">Net Balance</p>
+                <p class="summary-value positive">R 9,200</p>
+              </div>
+            </div>
           </div>
         </div>
       </section>
