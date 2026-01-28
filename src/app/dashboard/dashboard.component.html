@@ -311,8 +311,23 @@
             </div>
           </div>
           <h3 class="expense-title">Rental Income</h3>
-          <p class="expense-amount">R 12,500</p>
-          <p class="expense-change positive">+8.5% from last month</p>
+          <p class="expense-amount">
+            {{ formatCurrencyWithR(getRentalIncome()) }}
+          </p>
+          <p
+            class="expense-change"
+            [class.positive]="
+              getRentalIncomeChange().isPositive &&
+              getRentalIncomeChange().hasChange
+            "
+            [class.negative]="
+              !getRentalIncomeChange().isPositive &&
+              getRentalIncomeChange().hasChange
+            "
+            [class.neutral]="!getRentalIncomeChange().hasChange"
+          >
+            {{ formatPercentageChange(getRentalIncomeChange()) }}
+          </p>
           <div class="expense-bar">
             <div class="expense-bar-fill rental" style="width: 85%"></div>
           </div>
@@ -351,8 +366,23 @@
             </div>
           </div>
           <h3 class="expense-title">Maintenance</h3>
-          <p class="expense-amount">R 2,800</p>
-          <p class="expense-change negative">+12% from last month</p>
+          <p class="expense-amount">
+            {{ formatCurrencyWithR(getMaintenanceExpenses()) }}
+          </p>
+          <p
+            class="expense-change"
+            [class.positive]="
+              getMaintenanceChange().isPositive &&
+              getMaintenanceChange().hasChange
+            "
+            [class.negative]="
+              !getMaintenanceChange().isPositive &&
+              getMaintenanceChange().hasChange
+            "
+            [class.neutral]="!getMaintenanceChange().hasChange"
+          >
+            {{ formatPercentageChange(getMaintenanceChange()) }}
+          </p>
           <div class="expense-bar">
             <div class="expense-bar-fill maintenance" style="width: 45%"></div>
           </div>
@@ -391,8 +421,21 @@
             </div>
           </div>
           <h3 class="expense-title">Wages</h3>
-          <p class="expense-amount">R 5,200</p>
-          <p class="expense-change neutral">No change</p>
+          <p class="expense-amount">
+            {{ formatCurrencyWithR(getWagesExpenses()) }}
+          </p>
+          <p
+            class="expense-change"
+            [class.positive]="
+              getWagesChange().isPositive && getWagesChange().hasChange
+            "
+            [class.negative]="
+              !getWagesChange().isPositive && getWagesChange().hasChange
+            "
+            [class.neutral]="!getWagesChange().hasChange"
+          >
+            {{ formatPercentageChange(getWagesChange()) }}
+          </p>
           <div class="expense-bar">
             <div class="expense-bar-fill wages" style="width: 70%"></div>
           </div>
@@ -431,8 +474,21 @@
             </div>
           </div>
           <h3 class="expense-title">Utilities</h3>
-          <p class="expense-amount">R 1,450</p>
-          <p class="expense-change positive">-5.2% from last month</p>
+          <p class="expense-amount">
+            {{ formatCurrencyWithR(getUtilitiesExpenses()) }}
+          </p>
+          <p
+            class="expense-change"
+            [class.positive]="
+              getUtilitiesChange().isPositive && getUtilitiesChange().hasChange
+            "
+            [class.negative]="
+              !getUtilitiesChange().isPositive && getUtilitiesChange().hasChange
+            "
+            [class.neutral]="!getUtilitiesChange().hasChange"
+          >
+            {{ formatPercentageChange(getUtilitiesChange()) }}
+          </p>
           <div class="expense-bar">
             <div class="expense-bar-fill utilities" style="width: 30%"></div>
           </div>
@@ -454,9 +510,55 @@
             </div>
           </div>
 
-          <div class="chart-container">
+          <!-- Loading state for financial data -->
+          <div *ngIf="isLoadingFinancialData" class="chart-loading">
+            <div class="spinner"></div>
+            <p>Loading financial data...</p>
+          </div>
+
+          <!-- Error state for financial data -->
+          <div
+            *ngIf="financialDataError && !isLoadingFinancialData"
+            class="chart-error"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="24"
+              height="24"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+            >
+              <circle cx="12" cy="12" r="10"></circle>
+              <line x1="12" y1="8" x2="12" y2="12"></line>
+              <line x1="12" y1="16" x2="12.01" y2="16"></line>
+            </svg>
+            <p>{{ financialDataError }}</p>
+            <div class="button-group">
+              <button class="retry-btn" (click)="retryLoadFinancialData()">
+                Retry
+              </button>
+              <button
+                *ngIf="countdownActive"
+                class="cancel-btn"
+                (click)="cancelRedirect()"
+              >
+                Cancel Redirect
+              </button>
+            </div>
+          </div>
+
+          <!-- Chart container with financial data -->
+          <div
+            *ngIf="!isLoadingFinancialData && !financialDataError"
+            class="chart-container"
+          >
             <div class="chart-wrapper">
-              <div class="chart-bars">
+              <div *ngIf="financialData.length === 0" class="no-data-message">
+                <p>No financial data available</p>
+              </div>
+              <div *ngIf="financialData.length > 0" class="chart-bars">
                 <div class="month-group" *ngFor="let data of financialData">
                   <div class="bars">
                     <div
@@ -510,7 +612,9 @@
               </div>
               <div class="summary-text">
                 <p class="summary-label">Total Income</p>
-                <p class="summary-value">R 31,900</p>
+                <p class="summary-value">
+                  {{ formatCurrencyWithR(getTotalIncome()) }}
+                </p>
               </div>
             </div>
             <div class="summary-item">
@@ -530,7 +634,9 @@
               </div>
               <div class="summary-text">
                 <p class="summary-label">Total Expenses</p>
-                <p class="summary-value">R 22,700</p>
+                <p class="summary-value">
+                  {{ formatCurrencyWithR(getTotalExpenses()) }}
+                </p>
               </div>
             </div>
             <div class="summary-item">
@@ -549,7 +655,13 @@
               </div>
               <div class="summary-text">
                 <p class="summary-label">Net Balance</p>
-                <p class="summary-value positive">R 9,200</p>
+                <p
+                  class="summary-value"
+                  [class.positive]="getNetBalance() >= 0"
+                  [class.negative]="getNetBalance() < 0"
+                >
+                  {{ formatCurrencyWithR(getNetBalance()) }}
+                </p>
               </div>
             </div>
           </div>

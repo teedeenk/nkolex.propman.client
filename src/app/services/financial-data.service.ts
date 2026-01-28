@@ -1,0 +1,169 @@
+import { Injectable } from '@angular/core';
+import { HttpClient, HttpErrorResponse } from '@angular/common/http';
+import { Observable, throwError } from 'rxjs';
+import { map, catchError } from 'rxjs/operators';
+import { environment } from '../../environments/environment';
+import { AuthService } from './auth.service';
+
+export interface StatementLine {
+  date: string;
+  description: string;
+  amount: number;
+}
+
+export interface Statement {
+  statementLines: StatementLine[];
+}
+
+// The API returns an array directly, not wrapped in an object
+export type ApiResponse = Statement[];
+
+export interface FinancialData {
+  month: string;
+  income: number;
+  expenses: number;
+}
+
+@Injectable({
+  providedIn: 'root',
+})
+export class FinancialDataService {
+  private apiUrl = environment.apiUrl;
+
+  constructor(
+    private http: HttpClient,
+    private authService: AuthService,
+  ) {}
+
+  getFinancialData(): Observable<FinancialData[]> {
+    // Add debugging to see if token exists
+    const token = this.authService.getToken();
+    console.log(
+      '[FinancialDataService] Token check:',
+      token ? `Token exists (${token.substring(0, 20)}...)` : 'No token found',
+    );
+    console.log(
+      '[FinancialDataService] Making request to:',
+      `${this.apiUrl}/statement`,
+    );
+
+    return this.http.get<ApiResponse>(`${this.apiUrl}/statement`).pipe(
+      map((response) => this.transformApiResponse(response)),
+      catchError((error: HttpErrorResponse) => {
+        console.error('[FinancialDataService] API Error:', error);
+        console.error('[FinancialDataService] Error status:', error.status);
+        console.error('[FinancialDataService] Error headers:', error.headers);
+        console.error('[FinancialDataService] Request URL:', error.url);
+
+        if (error.status === 401) {
+          return throwError(
+            () => new Error('Authentication failed. Please login again.'),
+          );
+        }
+
+        return throwError(
+          () =>
+            new Error(
+              `Failed to fetch financial data: ${error.message || 'Unknown error'}`,
+            ),
+        );
+      }),
+    );
+  }
+
+  getRawTransactions(): Observable<StatementLine[]> {
+    return this.http.get<ApiResponse>(`${this.apiUrl}/statement`).pipe(
+      map((response) => {
+        if (!Array.isArray(response) || response.length === 0) {
+          return [];
+        }
+
+        // Flatten all statement lines from all statements
+        return response.flatMap((statement) => statement.statementLines || []);
+      }),
+      catchError((error: HttpErrorResponse) => {
+        console.error('[FinancialDataService] Raw transactions error:', error);
+        return throwError(() => new Error('Failed to fetch raw transactions'));
+      }),
+    );
+  }
+
+  private transformApiResponse(apiResponse: ApiResponse): FinancialData[] {
+    console.log('[FinancialDataService] Raw API Response:', apiResponse);
+    console.log(
+      '[FinancialDataService] Response is array:',
+      Array.isArray(apiResponse),
+    );
+
+    if (!Array.isArray(apiResponse) || apiResponse.length === 0) {
+      console.log('[FinancialDataService] No statements found in response');
+      return [];
+    }
+
+    // Flatten all statement lines from all statements
+    const allTransactions = apiResponse.flatMap((statement) => {
+      console.log('[FinancialDataService] Processing statement:', statement);
+      return statement.statementLines || [];
+    });
+
+    console.log('[FinancialDataService] All transactions:', allTransactions);
+
+    // Group transactions by month
+    const monthlyData: { [key: string]: { income: number; expenses: number } } =
+      {};
+
+    allTransactions.forEach((transaction) => {
+      if (!transaction.date || transaction.amount === undefined) {
+        return; // Skip invalid transactions
+      }
+
+      const date = new Date(transaction.date);
+      const monthKey = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
+      const monthName = date.toLocaleDateString('en-US', { month: 'short' });
+
+      if (!monthlyData[monthKey]) {
+        monthlyData[monthKey] = { income: 0, expenses: 0 };
+      }
+
+      // Positive amounts are income, negative amounts are expenses
+      if (transaction.amount > 0) {
+        monthlyData[monthKey].income += transaction.amount;
+      } else {
+        monthlyData[monthKey].expenses += Math.abs(transaction.amount);
+      }
+    });
+
+    // Convert to array and sort by month
+    const result = Object.entries(monthlyData)
+      .map(([monthKey, data]) => {
+        const [year, month] = monthKey.split('-');
+        const date = new Date(parseInt(year), parseInt(month) - 1, 1);
+        const monthName = date.toLocaleDateString('en-US', { month: 'short' });
+
+        return {
+          month: monthName,
+          income: Math.round(data.income * 100) / 100, // Round to 2 decimal places
+          expenses: Math.round(data.expenses * 100) / 100,
+        };
+      })
+      .sort((a, b) => {
+        const monthOrder = [
+          'Jan',
+          'Feb',
+          'Mar',
+          'Apr',
+          'May',
+          'Jun',
+          'Jul',
+          'Aug',
+          'Sep',
+          'Oct',
+          'Nov',
+          'Dec',
+        ];
+        return monthOrder.indexOf(a.month) - monthOrder.indexOf(b.month);
+      });
+
+    return result;
+  }
+}
