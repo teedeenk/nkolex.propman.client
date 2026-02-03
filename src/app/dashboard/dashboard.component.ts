@@ -316,10 +316,11 @@ export class DashboardComponent implements OnInit {
     console.log(`  - Previous month (${previousMonthKey}): ${previousMonth}`);
     console.log(`  - Current month (${currentMonthKey}): ${currentMonth}`);
 
-    if (previousMonth === 0) {
-      console.log(
-        `[${keyword}] Previous month total is 0, cannot calculate percentage`,
-      );
+    if (previousMonth === 0 && currentMonth === 0) {
+      return { percentage: 0, isPositive: false, hasChange: false };
+    }
+
+    if (currentMonth + previousMonth === 0) {
       return { percentage: 0, isPositive: false, hasChange: false };
     }
 

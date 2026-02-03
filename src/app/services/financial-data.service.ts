@@ -133,7 +133,7 @@ export class FinancialDataService {
       }
     });
 
-    // Convert to array and sort by month
+    // Convert to array and sort by chronological date
     const result = Object.entries(monthlyData)
       .map(([monthKey, data]) => {
         const [year, month] = monthKey.split('-');
@@ -144,25 +144,14 @@ export class FinancialDataService {
           month: monthName,
           income: Math.round(data.income * 100) / 100, // Round to 2 decimal places
           expenses: Math.round(data.expenses * 100) / 100,
+          sortDate: date, // Keep the date for sorting purposes
         };
       })
       .sort((a, b) => {
-        const monthOrder = [
-          'Jan',
-          'Feb',
-          'Mar',
-          'Apr',
-          'May',
-          'Jun',
-          'Jul',
-          'Aug',
-          'Sep',
-          'Oct',
-          'Nov',
-          'Dec',
-        ];
-        return monthOrder.indexOf(a.month) - monthOrder.indexOf(b.month);
-      });
+        // Sort by actual date chronologically (oldest first)
+        return a.sortDate.getTime() - b.sortDate.getTime();
+      })
+      .map(({ month, income, expenses }) => ({ month, income, expenses })); // Remove sortDate from final result
 
     return result;
   }
