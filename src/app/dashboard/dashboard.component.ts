@@ -164,6 +164,10 @@ export class DashboardComponent implements OnInit {
     this.closeMenu();
   }
 
+  navigateToUpload(): void {
+    this.router.navigate(['/upload']);
+  }
+
   getMaxValue(): number {
     if (this.financialData.length === 0) {
       return 1;

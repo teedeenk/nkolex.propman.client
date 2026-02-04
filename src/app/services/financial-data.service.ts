@@ -155,4 +155,25 @@ export class FinancialDataService {
 
     return result;
   }
+
+  uploadCSV(file: File): Observable<any> {
+    const formData = new FormData();
+    formData.append('file', file);
+
+    return this.http.post(`${this.apiUrl}/statement/upload`, formData).pipe(
+      catchError((error: HttpErrorResponse) => {
+        console.error('[FinancialDataService] Upload error:', error);
+
+        if (error.status === 401) {
+          return throwError(
+            () => new Error('Authentication failed. Please login again.'),
+          );
+        }
+
+        return throwError(
+          () => new Error(error.error?.message || 'Failed to upload file'),
+        );
+      }),
+    );
+  }
 }
