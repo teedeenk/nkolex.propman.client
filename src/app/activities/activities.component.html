@@ -1,0 +1,321 @@
+<div class="activities-container">
+  <div class="activities-content">
+    <!-- Header -->
+    <header class="activities-header">
+      <button class="back-btn" (click)="goBack()">
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="20"
+          height="20"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+        >
+          <line x1="19" y1="12" x2="5" y2="12"></line>
+          <polyline points="12 19 5 12 12 5"></polyline>
+        </svg>
+        Back to Dashboard
+      </button>
+      <h1>Activity Management</h1>
+      <p class="subtitle">Manage your property events and tasks</p>
+    </header>
+
+    <!-- Filters and Add Button -->
+    <div class="controls-section">
+      <div class="filters">
+        <div class="filter-group">
+          <label for="statusFilter">Status:</label>
+          <select
+            id="statusFilter"
+            [(ngModel)]="filterStatus"
+            (change)="onFilterChange()"
+          >
+            <option value="all">All</option>
+            <option value="upcoming">Upcoming</option>
+            <option value="completed">Completed</option>
+            <option value="cancelled">Cancelled</option>
+          </select>
+        </div>
+        <div class="filter-group">
+          <label for="typeFilter">Type:</label>
+          <select
+            id="typeFilter"
+            [(ngModel)]="filterType"
+            (change)="onFilterChange()"
+          >
+            <option value="all">All Types</option>
+            <option value="maintenance">Maintenance</option>
+            <option value="inspection">Inspection</option>
+            <option value="meeting">Meeting</option>
+            <option value="payment">Payment</option>
+            <option value="other">Other</option>
+          </select>
+        </div>
+      </div>
+      <button class="add-btn" (click)="showAddActivityForm()">
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="20"
+          height="20"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+        >
+          <line x1="12" y1="5" x2="12" y2="19"></line>
+          <line x1="5" y1="12" x2="19" y2="12"></line>
+        </svg>
+        Add Activity
+      </button>
+    </div>
+
+    <!-- Add Activity Form -->
+    <div class="add-activity-card" *ngIf="isAddingActivity">
+      <div class="card-header">
+        <h2>New Activity</h2>
+        <button class="close-btn" (click)="hideAddActivityForm()">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="20"
+            height="20"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+          >
+            <line x1="18" y1="6" x2="6" y2="18"></line>
+            <line x1="6" y1="6" x2="18" y2="18"></line>
+          </svg>
+        </button>
+      </div>
+      <form class="activity-form">
+        <div class="form-row">
+          <div class="form-group">
+            <label for="title">Title *</label>
+            <input
+              type="text"
+              id="title"
+              [(ngModel)]="newActivity.title"
+              name="title"
+              placeholder="e.g., Plumber Visit"
+              required
+            />
+          </div>
+          <div class="form-group">
+            <label for="type">Type *</label>
+            <select id="type" [(ngModel)]="newActivity.type" name="type">
+              <option value="maintenance">Maintenance</option>
+              <option value="inspection">Inspection</option>
+              <option value="meeting">Meeting</option>
+              <option value="payment">Payment</option>
+              <option value="other">Other</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="description">Description</label>
+          <textarea
+            id="description"
+            [(ngModel)]="newActivity.description"
+            name="description"
+            placeholder="Add details about this activity"
+            rows="3"
+          ></textarea>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label for="date">Date *</label>
+            <input
+              type="date"
+              id="date"
+              [(ngModel)]="newActivity.date"
+              name="date"
+              required
+            />
+          </div>
+          <div class="form-group">
+            <label for="time">Time *</label>
+            <input
+              type="time"
+              id="time"
+              [(ngModel)]="newActivity.time"
+              name="time"
+              required
+            />
+          </div>
+        </div>
+        <div class="form-actions">
+          <button
+            type="button"
+            class="cancel-btn"
+            (click)="hideAddActivityForm()"
+          >
+            Cancel
+          </button>
+          <button type="button" class="submit-btn" (click)="addActivity()">
+            Add Activity
+          </button>
+        </div>
+      </form>
+    </div>
+
+    <!-- Activities List -->
+    <div class="activities-list">
+      <div *ngIf="filteredActivities.length === 0" class="no-activities">
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="64"
+          height="64"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+        >
+          <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+          <line x1="16" y1="2" x2="16" y2="6"></line>
+          <line x1="8" y1="2" x2="8" y2="6"></line>
+          <line x1="3" y1="10" x2="21" y2="10"></line>
+        </svg>
+        <h3>No Activities Found</h3>
+        <p>Try adjusting your filters or add a new activity</p>
+      </div>
+
+      <div
+        *ngFor="let activity of filteredActivities"
+        class="activity-card"
+        [ngClass]="getStatusClass(activity.status)"
+      >
+        <div class="activity-icon" [ngClass]="getTypeClass(activity.type)">
+          <span>{{ getTypeIcon(activity.type) }}</span>
+        </div>
+        <div class="activity-content">
+          <div class="activity-header">
+            <h3>{{ activity.title }}</h3>
+            <div class="activity-badges">
+              <span class="type-badge" [ngClass]="activity.type">{{
+                activity.type
+              }}</span>
+              <span class="status-badge" [ngClass]="activity.status">{{
+                activity.status
+              }}</span>
+            </div>
+          </div>
+          <p class="activity-description">{{ activity.description }}</p>
+          <div class="activity-meta">
+            <div class="meta-item">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="16"
+                height="16"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+              >
+                <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                <line x1="16" y1="2" x2="16" y2="6"></line>
+                <line x1="8" y1="2" x2="8" y2="6"></line>
+                <line x1="3" y1="10" x2="21" y2="10"></line>
+              </svg>
+              <span>{{ formatDate(activity.date) }}</span>
+            </div>
+            <div class="meta-item">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="16"
+                height="16"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+              >
+                <circle cx="12" cy="12" r="10"></circle>
+                <polyline points="12 6 12 12 16 14"></polyline>
+              </svg>
+              <span>{{ formatTime(activity.time) }}</span>
+            </div>
+          </div>
+        </div>
+        <div class="activity-actions">
+          <button
+            *ngIf="activity.status === 'upcoming'"
+            class="action-btn complete"
+            (click)="updateActivityStatus(activity.id, 'completed')"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="18"
+              height="18"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+            >
+              <polyline points="20 6 9 17 4 12"></polyline>
+            </svg>
+            Complete
+          </button>
+          <button
+            *ngIf="activity.status === 'upcoming'"
+            class="action-btn cancel"
+            (click)="updateActivityStatus(activity.id, 'cancelled')"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="18"
+              height="18"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+            >
+              <line x1="18" y1="6" x2="6" y2="18"></line>
+              <line x1="6" y1="6" x2="18" y2="18"></line>
+            </svg>
+            Cancel
+          </button>
+          <button
+            *ngIf="activity.status === 'completed'"
+            class="action-btn undo"
+            (click)="updateActivityStatus(activity.id, 'upcoming')"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="18"
+              height="18"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+            >
+              <path d="M3 7v6h6"></path>
+              <path d="M21 17a9 9 0 00-9-9 9 9 0 00-6 2.3L3 13"></path>
+            </svg>
+            Undo
+          </button>
+          <button
+            class="action-btn delete"
+            (click)="deleteActivity(activity.id)"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="18"
+              height="18"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+            >
+              <polyline points="3 6 5 6 21 6"></polyline>
+              <path
+                d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"
+              ></path>
+            </svg>
+            Delete
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

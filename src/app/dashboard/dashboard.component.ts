@@ -168,6 +168,10 @@ export class DashboardComponent implements OnInit {
     this.router.navigate(['/upload']);
   }
 
+  navigateToActivities(): void {
+    this.router.navigate(['/activities']);
+  }
+
   getMaxValue(): number {
     if (this.financialData.length === 0) {
       return 1;
