@@ -5,6 +5,7 @@ import {
   FinancialData,
   StatementLine,
 } from '../services/financial-data.service';
+import { ActivityService, Activity } from '../services/activity.service';
 import { Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 
@@ -28,9 +29,14 @@ export class DashboardComponent implements OnInit {
   countdownActive: boolean = false;
   private countdownInterval: any;
 
+  // Activity carousel properties
+  upcomingActivities: Activity[] = [];
+  currentActivityIndex: number = 0;
+
   constructor(
     private authService: AuthService,
     private financialDataService: FinancialDataService,
+    private activityService: ActivityService,
     private router: Router,
   ) {}
 
@@ -41,6 +47,7 @@ export class DashboardComponent implements OnInit {
           this.fullName = fullName;
           this.isLoading = false;
           this.loadFinancialData();
+          this.loadActivities();
         } else {
           this.isLoading = false;
           this.router.navigate(['/login']);
@@ -51,6 +58,18 @@ export class DashboardComponent implements OnInit {
         this.isLoading = false;
         this.router.navigate(['/login']);
       },
+    });
+  }
+
+  private loadActivities(): void {
+    this.activityService.getActivities().subscribe((activities) => {
+      this.upcomingActivities = activities
+        .filter((activity) => activity.status === 'upcoming')
+        .sort((a, b) => {
+          const dateA = new Date(a.date + ' ' + a.time);
+          const dateB = new Date(b.date + ' ' + b.time);
+          return dateA.getTime() - dateB.getTime();
+        });
     });
   }
 
@@ -170,6 +189,45 @@ export class DashboardComponent implements OnInit {
 
   navigateToActivities(): void {
     this.router.navigate(['/activities']);
+  }
+
+  // Activity carousel methods
+  nextActivity(): void {
+    if (this.upcomingActivities.length > 0) {
+      this.currentActivityIndex =
+        (this.currentActivityIndex + 1) % this.upcomingActivities.length;
+    }
+  }
+
+  previousActivity(): void {
+    if (this.upcomingActivities.length > 0) {
+      this.currentActivityIndex =
+        (this.currentActivityIndex - 1 + this.upcomingActivities.length) %
+        this.upcomingActivities.length;
+    }
+  }
+
+  getCurrentActivity(): Activity | null {
+    return this.upcomingActivities.length > 0
+      ? this.upcomingActivities[this.currentActivityIndex]
+      : null;
+  }
+
+  formatActivityDate(dateStr: string): string {
+    const date = new Date(dateStr);
+    return date.toLocaleDateString('en-US', {
+      weekday: 'long',
+      month: 'long',
+      day: 'numeric',
+    });
+  }
+
+  formatActivityTime(timeStr: string): string {
+    const [hours, minutes] = timeStr.split(':');
+    const hour = parseInt(hours);
+    const ampm = hour >= 12 ? 'PM' : 'AM';
+    const displayHour = hour % 12 || 12;
+    return `${displayHour}:${minutes} ${ampm}`;
   }
 
   getMaxValue(): number {

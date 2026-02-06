@@ -293,28 +293,95 @@
       </section>
 
       <section class="stats-grid">
-        <div class="stat-card">
-          <div class="stat-icon purple">
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              width="24"
-              height="24"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="2"
-            >
-              <path d="M12 20V10"></path>
-              <path d="M18 20V4"></path>
-              <path d="M6 20v-4"></path>
-            </svg>
+        <div class="stat-card activity-carousel">
+          <div class="carousel-header">
+            <div class="stat-icon purple">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="24"
+                height="24"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+              >
+                <path d="M12 20V10"></path>
+                <path d="M18 20V4"></path>
+                <path d="M6 20v-4"></path>
+              </svg>
+            </div>
+            <h3>Upcoming Activities</h3>
           </div>
-          <div class="stat-info">
-            <h3>Activity</h3>
-            <p class="stat-value">1 event</p>
-            <p class="stat-description">
-              Electrician coming on Monday, 10 AM - 12 PM
-            </p>
+
+          <div *ngIf="upcomingActivities.length === 0" class="no-activities">
+            <p class="stat-description">No upcoming activities</p>
+            <button class="add-activity-btn" (click)="navigateToActivities()">
+              Add Activity
+            </button>
+          </div>
+
+          <div *ngIf="upcomingActivities.length > 0" class="carousel-container">
+            <button
+              class="carousel-btn prev"
+              (click)="previousActivity()"
+              [disabled]="upcomingActivities.length <= 1"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="20"
+                height="20"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+              >
+                <polyline points="15 18 9 12 15 6"></polyline>
+              </svg>
+              <span>Previous</span>
+            </button>
+
+            <div class="carousel-content">
+              <div
+                class="activity-info"
+                *ngIf="getCurrentActivity() as activity"
+              >
+                <p class="stat-value">{{ activity.title }}</p>
+                <p class="stat-description">
+                  {{ formatActivityDate(activity.date) }} at
+                  {{ formatActivityTime(activity.time) }}
+                </p>
+                <p class="activity-description">{{ activity.description }}</p>
+              </div>
+              <div
+                class="carousel-indicators"
+                *ngIf="upcomingActivities.length > 1"
+              >
+                <span
+                  *ngFor="let activity of upcomingActivities; let i = index"
+                  class="indicator"
+                  [class.active]="i === currentActivityIndex"
+                ></span>
+              </div>
+            </div>
+
+            <button
+              class="carousel-btn next"
+              (click)="nextActivity()"
+              [disabled]="upcomingActivities.length <= 1"
+            >
+              <span>Next</span>
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="20"
+                height="20"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+              >
+                <polyline points="9 18 15 12 9 6"></polyline>
+              </svg>
+            </button>
           </div>
         </div>
       </section>
