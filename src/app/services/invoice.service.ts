@@ -1,5 +1,9 @@
 import { Injectable } from '@angular/core';
-import jsPDF from 'jspdf';
+import { TDocumentDefinitions } from 'pdfmake/interfaces';
+
+// Lazy load pdfmake to avoid initialization issues
+const pdfMakeModule = () => import('pdfmake/build/pdfmake');
+const pdfFontsModule = () => import('pdfmake/build/vfs_fonts');
 
 interface Tenant {
   id: number;
@@ -20,134 +24,349 @@ interface Tenant {
 export class InvoiceService {
   constructor() {}
 
-  generateInvoice(tenant: Tenant): jsPDF {
-    const doc = new jsPDF();
-    const pageWidth = doc.internal.pageSize.width;
+  generateInvoice(tenant: Tenant): TDocumentDefinitions {
     const invoiceDate = new Date();
     const dueDate = new Date();
     dueDate.setDate(dueDate.getDate() + 30); // 30 days payment term
     const invoiceNumber = `INV-${invoiceDate.getFullYear()}${(invoiceDate.getMonth() + 1).toString().padStart(2, '0')}${tenant.id.toString().padStart(4, '0')}`;
-
-    // Header - Company Info
-    doc.setFillColor(102, 126, 234);
-    doc.rect(0, 0, pageWidth, 40, 'F');
-    
-    doc.setTextColor(255, 255, 255);
-    doc.setFontSize(24);
-    doc.setFont('helvetica', 'bold');
-    doc.text('NKOLEX PROPERTY', 15, 20);
-    
-    doc.setFontSize(10);
-    doc.setFont('helvetica', 'normal');
-    doc.text('Property Management Services', 15, 28);
-    doc.text('info@nkolex.com | +27 (123) 456-7890', 15, 34);
-
-    // Invoice Title
-    doc.setTextColor(0, 0, 0);
-    doc.setFontSize(20);
-    doc.setFont('helvetica', 'bold');
-    doc.text('INVOICE', pageWidth - 15, 55, { align: 'right' });
-
-    // Invoice Details Box
-    doc.setFontSize(10);
-    doc.setFont('helvetica', 'normal');
-    doc.text(`Invoice #: ${invoiceNumber}`, pageWidth - 15, 65, { align: 'right' });
-    doc.text(`Date: ${this.formatDate(invoiceDate)}`, pageWidth - 15, 72, { align: 'right' });
-    doc.text(`Due Date: ${this.formatDate(dueDate)}`, pageWidth - 15, 79, { align: 'right' });
-
-    // Bill To Section
-    doc.setFontSize(12);
-    doc.setFont('helvetica', 'bold');
-    doc.text('BILL TO:', 15, 65);
-    
-    doc.setFontSize(10);
-    doc.setFont('helvetica', 'normal');
-    doc.text(tenant.name, 15, 73);
-    doc.text(`Unit: ${tenant.unit}`, 15, 80);
-    doc.text(tenant.email, 15, 87);
-    doc.text(tenant.phone || 'N/A', 15, 94);
-
-    // Table Header
-    const tableTop = 110;
-    doc.setFillColor(102, 126, 234);
-    doc.rect(15, tableTop, pageWidth - 30, 10, 'F');
-    
-    doc.setTextColor(255, 255, 255);
-    doc.setFontSize(10);
-    doc.setFont('helvetica', 'bold');
-    doc.text('Description', 20, tableTop + 7);
-    doc.text('Amount', pageWidth - 20, tableTop + 7, { align: 'right' });
-
-    // Table Content
-    doc.setTextColor(0, 0, 0);
-    doc.setFont('helvetica', 'normal');
-    const rowTop = tableTop + 18;
-    
-    doc.text(`Monthly Rent - ${tenant.unit}`, 20, rowTop);
-    doc.text(`R ${tenant.rentAmount.toLocaleString('en-ZA', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`, pageWidth - 20, rowTop, { align: 'right' });
-    
-    doc.text(`Lease Period: ${this.formatDate(new Date(tenant.leaseStart))} - ${this.formatDate(new Date(tenant.leaseEnd))}`, 20, rowTop + 7);
-
-    // Line separator
-    doc.setDrawColor(200, 200, 200);
-    doc.line(15, rowTop + 15, pageWidth - 15, rowTop + 15);
-
-    // Subtotal
-    const subtotalTop = rowTop + 23;
-    doc.setFont('helvetica', 'normal');
-    doc.text('Subtotal:', pageWidth - 70, subtotalTop);
-    doc.text(`R ${tenant.rentAmount.toLocaleString('en-ZA', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`, pageWidth - 20, subtotalTop, { align: 'right' });
-
-    // VAT (15%)
     const vat = tenant.rentAmount * 0.15;
-    doc.text('VAT (15%):', pageWidth - 70, subtotalTop + 7);
-    doc.text(`R ${vat.toLocaleString('en-ZA', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`, pageWidth - 20, subtotalTop + 7, { align: 'right' });
-
-    // Total
     const total = tenant.rentAmount + vat;
-    doc.setFillColor(240, 240, 240);
-    doc.rect(pageWidth - 85, subtotalTop + 12, 70, 10, 'F');
-    
-    doc.setFont('helvetica', 'bold');
-    doc.setFontSize(12);
-    doc.text('TOTAL:', pageWidth - 70, subtotalTop + 19);
-    doc.text(`R ${total.toLocaleString('en-ZA', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`, pageWidth - 20, subtotalTop + 19, { align: 'right' });
 
-    // Payment Instructions
-    const paymentTop = subtotalTop + 40;
-    doc.setFontSize(11);
-    doc.setFont('helvetica', 'bold');
-    doc.text('PAYMENT DETAILS:', 15, paymentTop);
-    
-    doc.setFontSize(9);
-    doc.setFont('helvetica', 'normal');
-    doc.text('Bank: First National Bank', 15, paymentTop + 8);
-    doc.text('Account Name: Nkolex Property Management', 15, paymentTop + 14);
-    doc.text('Account Number: 62 1234 5678 90', 15, paymentTop + 20);
-    doc.text('Branch Code: 250655', 15, paymentTop + 26);
-    doc.text(`Reference: ${invoiceNumber}`, 15, paymentTop + 32);
+    const documentDefinition: TDocumentDefinitions = {
+      content: [
+        // Header with company branding
+        {
+          canvas: [
+            {
+              type: 'rect',
+              x: 0,
+              y: 0,
+              w: 515,
+              h: 60,
+              color: '#667eea',
+            },
+          ],
+          absolutePosition: { x: 40, y: 40 },
+        },
+        {
+          text: 'NKOLEX PROPERTY',
+          style: 'header',
+          color: 'white',
+          absolutePosition: { x: 55, y: 55 },
+        },
+        {
+          text: 'Property Management Services',
+          fontSize: 10,
+          color: 'white',
+          absolutePosition: { x: 55, y: 75 },
+        },
+        {
+          text: 'info@nkolex.com | +27 (123) 456-7890',
+          fontSize: 9,
+          color: 'white',
+          absolutePosition: { x: 55, y: 87 },
+        },
 
-    // Footer
-    doc.setFontSize(8);
-    doc.setTextColor(100, 100, 100);
-    doc.text('Thank you for your business!', pageWidth / 2, 270, { align: 'center' });
-    doc.text('For any queries, please contact us at info@nkolex.com', pageWidth / 2, 276, { align: 'center' });
+        // Invoice title and details
+        {
+          columns: [
+            {
+              width: '*',
+              text: '',
+            },
+            {
+              width: 'auto',
+              stack: [
+                { text: 'INVOICE', style: 'invoiceTitle', alignment: 'right' },
+                {
+                  text: [{ text: 'Invoice #: ', bold: true }, invoiceNumber],
+                  fontSize: 10,
+                  alignment: 'right',
+                  margin: [0, 5, 0, 2],
+                },
+                {
+                  text: [
+                    { text: 'Date: ', bold: true },
+                    this.formatDate(invoiceDate),
+                  ],
+                  fontSize: 10,
+                  alignment: 'right',
+                  margin: [0, 0, 0, 2],
+                },
+                {
+                  text: [
+                    { text: 'Due Date: ', bold: true },
+                    this.formatDate(dueDate),
+                  ],
+                  fontSize: 10,
+                  alignment: 'right',
+                },
+              ],
+            },
+          ],
+          margin: [0, 30, 0, 20],
+        },
 
-    return doc;
+        // Bill To section
+        {
+          text: 'BILL TO:',
+          style: 'subheader',
+          margin: [0, 0, 0, 5],
+        },
+        {
+          text: tenant.name,
+          bold: true,
+          fontSize: 11,
+          margin: [0, 0, 0, 3],
+        },
+        {
+          text: `Unit: ${tenant.unit}`,
+          fontSize: 10,
+          margin: [0, 0, 0, 2],
+        },
+        {
+          text: tenant.email,
+          fontSize: 10,
+          margin: [0, 0, 0, 2],
+        },
+        {
+          text: tenant.phone || 'N/A',
+          fontSize: 10,
+          margin: [0, 0, 0, 20],
+        },
+
+        // Items table
+        {
+          table: {
+            headerRows: 1,
+            widths: ['*', 'auto'],
+            body: [
+              [
+                { text: 'Description', style: 'tableHeader' },
+                { text: 'Amount', style: 'tableHeader', alignment: 'right' },
+              ],
+              [
+                {
+                  stack: [
+                    { text: `Monthly Rent - ${tenant.unit}`, bold: true },
+                    {
+                      text: `Lease Period: ${this.formatDate(new Date(tenant.leaseStart))} - ${this.formatDate(new Date(tenant.leaseEnd))}`,
+                      fontSize: 9,
+                      color: '#666',
+                      margin: [0, 3, 0, 0],
+                    },
+                  ],
+                },
+                {
+                  text: this.formatCurrency(tenant.rentAmount),
+                  alignment: 'right',
+                  fontSize: 11,
+                },
+              ],
+            ],
+          },
+          layout: {
+            fillColor: function (rowIndex: number) {
+              return rowIndex === 0 ? '#667eea' : null;
+            },
+            hLineWidth: function (i: number, node: any) {
+              return i === 0 || i === node.table.body.length ? 0 : 1;
+            },
+            vLineWidth: function () {
+              return 0;
+            },
+            hLineColor: function () {
+              return '#e2e8f0';
+            },
+          },
+        },
+
+        // Totals section
+        {
+          columns: [
+            { width: '*', text: '' },
+            {
+              width: 200,
+              stack: [
+                {
+                  columns: [
+                    { text: 'Subtotal:', fontSize: 10 },
+                    {
+                      text: this.formatCurrency(tenant.rentAmount),
+                      alignment: 'right',
+                      fontSize: 10,
+                    },
+                  ],
+                  margin: [0, 10, 0, 5],
+                },
+                {
+                  columns: [
+                    { text: 'VAT (15%):', fontSize: 10 },
+                    {
+                      text: this.formatCurrency(vat),
+                      alignment: 'right',
+                      fontSize: 10,
+                    },
+                  ],
+                  margin: [0, 0, 0, 10],
+                },
+                {
+                  canvas: [
+                    {
+                      type: 'rect',
+                      x: 0,
+                      y: 0,
+                      w: 200,
+                      h: 25,
+                      color: '#f3f4f6',
+                    },
+                  ],
+                },
+                {
+                  columns: [
+                    { text: 'TOTAL:', bold: true, fontSize: 12 },
+                    {
+                      text: this.formatCurrency(total),
+                      bold: true,
+                      alignment: 'right',
+                      fontSize: 12,
+                      color: '#667eea',
+                    },
+                  ],
+                  margin: [5, -20, 5, 0],
+                },
+              ],
+            },
+          ],
+        },
+
+        // Payment details
+        {
+          text: 'PAYMENT DETAILS:',
+          style: 'subheader',
+          margin: [0, 30, 0, 10],
+        },
+        {
+          columns: [
+            {
+              width: '50%',
+              stack: [
+                {
+                  text: 'Bank: First National Bank',
+                  fontSize: 9,
+                  margin: [0, 0, 0, 3],
+                },
+                {
+                  text: 'Account Name: Nkolex Property Management',
+                  fontSize: 9,
+                  margin: [0, 0, 0, 3],
+                },
+                {
+                  text: 'Account Number: 62 1234 5678 90',
+                  fontSize: 9,
+                  margin: [0, 0, 0, 3],
+                },
+              ],
+            },
+            {
+              width: '50%',
+              stack: [
+                {
+                  text: 'Branch Code: 250655',
+                  fontSize: 9,
+                  margin: [0, 0, 0, 3],
+                },
+                {
+                  text: `Reference: ${invoiceNumber}`,
+                  fontSize: 9,
+                  margin: [0, 0, 0, 3],
+                  bold: true,
+                },
+              ],
+            },
+          ],
+        },
+
+        // Footer
+        {
+          text: 'Thank you for your business!',
+          alignment: 'center',
+          fontSize: 9,
+          color: '#666',
+          margin: [0, 40, 0, 5],
+        },
+        {
+          text: 'For any queries, please contact us at info@nkolex.com',
+          alignment: 'center',
+          fontSize: 8,
+          color: '#999',
+        },
+      ],
+      styles: {
+        header: {
+          fontSize: 24,
+          bold: true,
+        },
+        invoiceTitle: {
+          fontSize: 20,
+          bold: true,
+          color: '#2d3748',
+        },
+        subheader: {
+          fontSize: 12,
+          bold: true,
+          color: '#2d3748',
+        },
+        tableHeader: {
+          bold: true,
+          fontSize: 11,
+          color: 'white',
+          fillColor: '#667eea',
+        },
+      },
+      defaultStyle: {
+        fontSize: 10,
+        color: '#2d3748',
+      },
+    };
+
+    return documentDefinition;
   }
 
-  generateAndDownloadInvoice(tenant: Tenant): void {
-    const doc = this.generateInvoice(tenant);
+  async generateAndDownloadInvoice(tenant: Tenant): Promise<void> {
+    const documentDefinition = this.generateInvoice(tenant);
     const fileName = `Invoice_${tenant.name.replace(/\s+/g, '_')}_${new Date().getTime()}.pdf`;
-    doc.save(fileName);
+
+    // Lazy load pdfMake modules
+    const pdfMakeLib = await pdfMakeModule();
+    const pdfFontsLib = await pdfFontsModule();
+
+    // Get the default exports
+    const pdfMake = (pdfMakeLib as any).default || pdfMakeLib;
+    const pdfFonts = (pdfFontsLib as any).default || pdfFontsLib;
+
+    // Initialize vfs
+    pdfMake.vfs = pdfFonts.pdfMake?.vfs || pdfFonts.vfs;
+
+    // Create and download PDF
+    pdfMake.createPdf(documentDefinition).download(fileName);
   }
 
-  generateMultipleInvoices(tenants: Tenant[]): void {
-    tenants.forEach((tenant, index) => {
-      setTimeout(() => {
-        this.generateAndDownloadInvoice(tenant);
-      }, index * 500); // Stagger downloads by 500ms to avoid browser blocking
-    });
+  async generateMultipleInvoices(tenants: Tenant[]): Promise<void> {
+    for (let i = 0; i < tenants.length; i++) {
+      await new Promise((resolve) => setTimeout(resolve, i * 500));
+      await this.generateAndDownloadInvoice(tenants[i]);
+    }
+  }
+
+  private formatCurrency(amount: number): string {
+    return (
+      'R ' +
+      amount.toLocaleString('en-ZA', {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2,
+      })
+    );
   }
 
   private formatDate(date: Date): string {
