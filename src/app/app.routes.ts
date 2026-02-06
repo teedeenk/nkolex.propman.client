@@ -4,6 +4,7 @@ import { LoginComponent } from './login/login.component';
 import { DashboardComponent } from './dashboard/dashboard.component';
 import { UploadComponent } from './upload/upload.component';
 import { ActivitiesComponent } from './activities/activities.component';
+import { TenantsComponent } from './tenants/tenants.component';
 
 export const routes: Routes = [
   { path: 'register', component: RegisterComponent },
@@ -11,6 +12,7 @@ export const routes: Routes = [
   { path: 'dashboard', component: DashboardComponent },
   { path: 'upload', component: UploadComponent },
   { path: 'activities', component: ActivitiesComponent },
+  { path: 'tenants', component: TenantsComponent },
   { path: '', pathMatch: 'full', redirectTo: '' }, // stays on AppComponent (landing page)
   { path: '**', redirectTo: '' }, // redirect unknown routes to landing page
 ];

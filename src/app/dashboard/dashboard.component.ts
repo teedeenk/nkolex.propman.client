@@ -191,6 +191,10 @@ export class DashboardComponent implements OnInit {
     this.router.navigate(['/activities']);
   }
 
+  navigateToTenants(): void {
+    this.router.navigate(['/tenants']);
+  }
+
   // Activity carousel methods
   nextActivity(): void {
     if (this.upcomingActivities.length > 0) {
