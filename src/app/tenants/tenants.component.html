@@ -102,6 +102,24 @@
           </svg>
         </button>
       </div>
+      <button class="invoice-btn" (click)="openInvoices()">
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="20"
+          height="20"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+        >
+          <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+          <polyline points="14 2 14 8 20 8"></polyline>
+          <line x1="16" y1="13" x2="8" y2="13"></line>
+          <line x1="16" y1="17" x2="8" y2="17"></line>
+          <polyline points="10 9 9 9 8 9"></polyline>
+        </svg>
+        Invoice
+      </button>
       <button class="add-btn" (click)="showAddTenantForm()">
         <svg
           xmlns="http://www.w3.org/2000/svg"
@@ -243,6 +261,139 @@
       </form>
     </div>
 
+    <!-- Edit Tenant Form -->
+    <div class="add-tenant-card" *ngIf="isEditingTenant">
+      <div class="card-header">
+        <h2>Edit Tenant</h2>
+        <button class="close-btn" (click)="cancelEdit()">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="20"
+            height="20"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+          >
+            <line x1="18" y1="6" x2="6" y2="18"></line>
+            <line x1="6" y1="6" x2="18" y2="18"></line>
+          </svg>
+        </button>
+      </div>
+      <form class="tenant-form">
+        <div class="form-row">
+          <div class="form-group">
+            <label for="editName">Full Name *</label>
+            <input
+              type="text"
+              id="editName"
+              [(ngModel)]="editingTenant.name"
+              name="editName"
+              placeholder="e.g., John Smith"
+              required
+            />
+          </div>
+          <div class="form-group">
+            <label for="editUnit">Unit *</label>
+            <input
+              type="text"
+              id="editUnit"
+              [(ngModel)]="editingTenant.unit"
+              name="editUnit"
+              placeholder="e.g., Unit 3B"
+              required
+            />
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label for="editEmail">Email *</label>
+            <input
+              type="email"
+              id="editEmail"
+              [(ngModel)]="editingTenant.email"
+              name="editEmail"
+              placeholder="tenant@email.com"
+              required
+            />
+          </div>
+          <div class="form-group">
+            <label for="editPhone">Phone</label>
+            <input
+              type="tel"
+              id="editPhone"
+              [(ngModel)]="editingTenant.phone"
+              name="editPhone"
+              placeholder="(555) 123-4567"
+            />
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label for="editLeaseStart">Lease Start *</label>
+            <input
+              type="date"
+              id="editLeaseStart"
+              [(ngModel)]="editingTenant.leaseStart"
+              name="editLeaseStart"
+              required
+            />
+          </div>
+          <div class="form-group">
+            <label for="editLeaseEnd">Lease End</label>
+            <input
+              type="date"
+              id="editLeaseEnd"
+              [(ngModel)]="editingTenant.leaseEnd"
+              name="editLeaseEnd"
+            />
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label for="editRent">Monthly Rent</label>
+            <input
+              type="number"
+              id="editRent"
+              [(ngModel)]="editingTenant.rentAmount"
+              name="editRent"
+              placeholder="1500"
+            />
+          </div>
+          <div class="form-group">
+            <label for="editStatus">Status</label>
+            <select id="editStatus" [(ngModel)]="editingTenant.status" name="editStatus">
+              <option value="active">Active</option>
+              <option value="pending">Pending</option>
+              <option value="inactive">Inactive</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label for="editPaymentStatus">Payment Status</label>
+            <select id="editPaymentStatus" [(ngModel)]="editingTenant.paymentStatus" name="editPaymentStatus">
+              <option value="current">Current</option>
+              <option value="late">Late</option>
+              <option value="overdue">Overdue</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-actions">
+          <button
+            type="button"
+            class="cancel-btn"
+            (click)="cancelEdit()"
+          >
+            Cancel
+          </button>
+          <button type="button" class="submit-btn" (click)="updateTenant()">
+            Update Tenant
+          </button>
+        </div>
+      </form>
+    </div>
+
     <!-- Tenants List - Cards View -->
     <div class="tenants-grid" *ngIf="viewMode === 'cards'">
       <div *ngIf="filteredTenants.length === 0" class="no-tenants">
@@ -376,6 +527,21 @@
         </div>
 
         <div class="tenant-actions">
+          <button class="action-btn edit" (click)="editTenant(tenant.id)">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="18"
+              height="18"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+            >
+              <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+              <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+            </svg>
+            Edit
+          </button>
           <button
             *ngIf="tenant.status === 'active'"
             class="action-btn deactivate"
@@ -583,6 +749,24 @@
               </td>
               <td>
                 <div class="table-actions">
+                  <button
+                    class="table-action-btn edit"
+                    (click)="editTenant(tenant.id)"
+                    title="Edit"
+                  >
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      width="16"
+                      height="16"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="2"
+                    >
+                      <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                      <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+                    </svg>
+                  </button>
                   <button
                     *ngIf="tenant.status === 'active'"
                     class="table-action-btn deactivate"

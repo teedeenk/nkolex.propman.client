@@ -67,9 +67,23 @@ export class TenantsComponent implements OnInit {
   filterStatus: string = 'all';
   searchQuery: string = '';
   isAddingTenant: boolean = false;
+  isEditingTenant: boolean = false;
   viewMode: 'cards' | 'table' = 'cards';
 
   newTenant: Tenant = {
+    id: 0,
+    name: '',
+    email: '',
+    phone: '',
+    unit: '',
+    leaseStart: '',
+    leaseEnd: '',
+    rentAmount: 0,
+    status: 'active',
+    paymentStatus: 'current',
+  };
+
+  editingTenant: Tenant = {
     id: 0,
     name: '',
     email: '',
@@ -120,8 +134,13 @@ export class TenantsComponent implements OnInit {
     this.viewMode = mode;
   }
 
+  openInvoices(): void {
+    this.router.navigate(['/invoices']);
+  }
+
   showAddTenantForm(): void {
     this.isAddingTenant = true;
+    this.isEditingTenant = false;
     this.resetNewTenant();
   }
 
@@ -164,6 +183,50 @@ export class TenantsComponent implements OnInit {
     this.tenants.push(tenant);
     this.applyFilters();
     this.hideAddTenantForm();
+  }
+
+  editTenant(id: number): void {
+    const tenant = this.tenants.find((t) => t.id === id);
+    if (tenant) {
+      this.editingTenant = { ...tenant };
+      this.isEditingTenant = true;
+      this.isAddingTenant = false;
+    }
+  }
+
+  updateTenant(): void {
+    if (
+      !this.editingTenant.name ||
+      !this.editingTenant.email ||
+      !this.editingTenant.unit ||
+      !this.editingTenant.leaseStart
+    ) {
+      alert('Please fill in all required fields');
+      return;
+    }
+
+    const index = this.tenants.findIndex((t) => t.id === this.editingTenant.id);
+    if (index !== -1) {
+      this.tenants[index] = { ...this.editingTenant };
+      this.applyFilters();
+      this.cancelEdit();
+    }
+  }
+
+  cancelEdit(): void {
+    this.isEditingTenant = false;
+    this.editingTenant = {
+      id: 0,
+      name: '',
+      email: '',
+      phone: '',
+      unit: '',
+      leaseStart: '',
+      leaseEnd: '',
+      rentAmount: 0,
+      status: 'active',
+      paymentStatus: 'current',
+    };
   }
 
   deleteTenant(id: number): void {

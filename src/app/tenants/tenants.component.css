@@ -159,6 +159,26 @@
   opacity: 0.7;
 }
 
+.invoice-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: white;
+  color: #667eea;
+  border: none;
+  padding: 0.75rem 1.5rem;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.invoice-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
 .add-btn {
   display: inline-flex;
   align-items: center;
@@ -481,6 +501,15 @@
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 
+.action-btn.edit {
+  background: #e3f2fd;
+  color: #1565c0;
+}
+
+.action-btn.edit:hover {
+  background: #bbdefb;
+}
+
 .action-btn.activate {
   background: #e8f5e9;
   color: #2e7d32;
@@ -710,6 +739,14 @@
 
 .table-action-btn:hover {
   transform: translateY(-2px);
+}
+
+.table-action-btn.edit {
+  color: #1565c0;
+}
+
+.table-action-btn.edit:hover {
+  background: rgba(21, 101, 192, 0.1);
 }
 
 .table-action-btn.activate {

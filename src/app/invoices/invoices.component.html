@@ -1,0 +1,238 @@
+<div class="invoices-container">
+  <div class="invoices-content">
+    <!-- Header -->
+    <header class="invoices-header">
+      <button class="back-btn" (click)="goBack()">
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="20"
+          height="20"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+        >
+          <line x1="19" y1="12" x2="5" y2="12"></line>
+          <polyline points="12 19 5 12 12 5"></polyline>
+        </svg>
+        Back to Tenants
+      </button>
+      <h1>Send Invoices</h1>
+      <p class="subtitle">Select tenants to send invoices to</p>
+    </header>
+
+    <!-- Action Bar -->
+    <div class="action-bar">
+      <div class="selection-info">
+        <span class="selected-count">{{ getSelectedTenants().length }} tenant(s) selected</span>
+      </div>
+      <button 
+        class="send-btn" 
+        (click)="openPreview()"
+        [disabled]="getSelectedTenants().length === 0"
+      >
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="20"
+          height="20"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+        >
+          <line x1="22" y1="2" x2="11" y2="13"></line>
+          <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+        </svg>
+        {{ isSending ? 'Sending...' : 'Preview & Send' }}
+      </button>
+    </div>
+
+    <!-- Invoices Table -->
+    <div class="invoices-table-card">
+      <div class="table-container">
+        <table>
+          <thead>
+            <tr>
+              <th class="checkbox-col">
+                <input
+                  type="checkbox"
+                  class="tenant-checkbox"
+                  [(ngModel)]="selectAll"
+                  (change)="toggleSelectAll()"
+                  [disabled]="isSending"
+                />
+              </th>
+              <th>Tenant</th>
+              <th>Unit</th>
+              <th>Email</th>
+              <th>Phone</th>
+              <th>Rent Amount</th>
+              <th>Invoice Status</th>
+              <th>Payment Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr 
+              *ngFor="let tenant of tenants"
+              [ngClass]="getStatusClass(tenant.status)"
+              [class.disabled]="tenant.status !== 'active'"
+            >
+              <td class="checkbox-col">
+                <input
+                  type="checkbox"
+                  class="tenant-checkbox"
+                  [(ngModel)]="tenant.selected"
+                  (change)="onTenantSelectionChange()"
+                  [disabled]="tenant.status !== 'active' || isSending"
+                />
+              </td>
+              <td>
+                <div class="tenant-info">
+                  <div class="tenant-avatar">
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      width="24"
+                      height="24"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="2"
+                    >
+                      <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                      <circle cx="12" cy="7" r="4"></circle>
+                    </svg>
+                  </div>
+                  <span class="tenant-name">{{ tenant.name }}</span>
+                </div>
+              </td>
+              <td>{{ tenant.unit }}</td>
+              <td>
+                <div class="email-cell">
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="14"
+                    height="14"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                  >
+                    <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path>
+                    <polyline points="22,6 12,13 2,6"></polyline>
+                  </svg>
+                  <span>{{ tenant.email }}</span>
+                </div>
+              </td>
+              <td>{{ tenant.phone || 'N/A' }}</td>
+              <td class="rent-cell">
+                <span class="rent-amount">{{ formatCurrency(tenant.rentAmount) }}</span>
+              </td>
+              <td>
+                <span class="status-badge sent" *ngIf="tenant.invoiceStatus === 'sent'">sent</span>
+                <span class="status-badge blank" *ngIf="tenant.invoiceStatus !== 'sent'">-</span>
+              </td>
+              <td>
+                <span class="payment-badge" [ngClass]="getPaymentStatusClass(tenant.paymentStatus)">
+                  {{ tenant.paymentStatus }}
+                </span>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Preview Modal -->
+    <div class="modal-overlay" *ngIf="showPreview" (click)="closePreview()">
+      <div class="modal-content" (click)="$event.stopPropagation()">
+        <div class="modal-header">
+          <h2>Preview Invoices</h2>
+          <button class="close-btn" (click)="closePreview()">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="24"
+              height="24"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+            >
+              <line x1="18" y1="6" x2="6" y2="18"></line>
+              <line x1="6" y1="6" x2="18" y2="18"></line>
+            </svg>
+          </button>
+        </div>
+
+        <div class="modal-body">
+          <p class="preview-description">
+            You are about to send invoices to the following {{ previewTenants.length }} tenant(s):
+          </p>
+
+          <div class="preview-list">
+            <div class="preview-item" *ngFor="let tenant of previewTenants">
+              <div class="preview-tenant-info">
+                <div class="preview-avatar">
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="20"
+                    height="20"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                  >
+                    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                    <circle cx="12" cy="7" r="4"></circle>
+                  </svg>
+                </div>
+                <div class="preview-details">
+                  <div class="preview-name">{{ tenant.name }}</div>
+                  <div class="preview-email">{{ tenant.email }}</div>
+                </div>
+              </div>
+              <div class="preview-amount">
+                <span class="preview-unit">{{ tenant.unit }}</span>
+                <span class="preview-rent">{{ formatCurrency(tenant.rentAmount) }}</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="download-option">
+            <label class="checkbox-label">
+              <input
+                type="checkbox"
+                [(ngModel)]="downloadPdfs"
+                class="download-checkbox"
+              />
+              <span>Download PDF invoices to local folder</span>
+            </label>
+            <p class="download-hint" *ngIf="downloadPdfs">
+              PDFs will be saved to your Downloads folder
+            </p>
+          </div>
+        </div>
+
+        <div class="modal-footer">
+          <button class="cancel-btn" (click)="closePreview()" [disabled]="isSending">
+            Cancel
+          </button>
+          <button class="confirm-btn" (click)="confirmSend()" [disabled]="isSending">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="18"
+              height="18"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+            >
+              <line x1="22" y1="2" x2="11" y2="13"></line>
+              <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+            </svg>
+            {{ isSending ? 'Sending...' : 'Send Invoices' }}
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
