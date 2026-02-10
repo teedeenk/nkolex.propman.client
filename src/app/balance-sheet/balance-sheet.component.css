@@ -1,0 +1,382 @@
+.balance-sheet-container {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  padding: 2rem;
+}
+
+.loading-spinner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  color: white;
+}
+
+.spinner {
+  width: 50px;
+  height: 50px;
+  border: 4px solid rgba(255, 255, 255, 0.3);
+  border-top-color: white;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.loading-spinner p {
+  margin-top: 1rem;
+  font-size: 1.1rem;
+}
+
+.content {
+  display: block;
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+.page-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
+  padding: 1.5rem;
+  background: rgba(255, 255, 255, 0.95);
+  border-radius: 12px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.header-left {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.back-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  background: #f3f4f6;
+  border: none;
+  border-radius: 8px;
+  color: #374151;
+  font-size: 0.95rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.back-btn:hover {
+  background: #e5e7eb;
+  transform: translateX(-2px);
+}
+
+.page-header h1 {
+  margin: 0;
+  font-size: 1.8rem;
+  color: #1f2937;
+}
+
+.header-actions {
+  display: flex;
+  gap: 0.75rem;
+}
+
+.export-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.6rem 1.2rem;
+  background: #667eea;
+  border: none;
+  border-radius: 8px;
+  color: white;
+  font-size: 0.95rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.export-btn:hover {
+  background: #5568d3;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(102, 126, 234, 0.3);
+}
+
+.statement-card {
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+  margin-bottom: 1.5rem;
+}
+
+.statement-header {
+  padding: 1.5rem;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+}
+
+.statement-header h2 {
+  margin: 0;
+  font-size: 1.5rem;
+  font-weight: 600;
+}
+
+.statement-subtitle {
+  margin: 0.25rem 0 0 0;
+  font-size: 0.9rem;
+  opacity: 0.9;
+}
+
+.statement-content {
+  padding: 1.5rem;
+}
+
+.statement-section {
+  margin-bottom: 2rem;
+}
+
+.statement-section:last-child {
+  margin-bottom: 0;
+}
+
+.section-title {
+  font-size: 1.2rem;
+  font-weight: 600;
+  margin: 0 0 1rem 0;
+  padding-bottom: 0.5rem;
+  border-bottom: 2px solid #e5e7eb;
+}
+
+.assets-title {
+  color: #3b82f6;
+}
+
+.liabilities-title {
+  color: #f59e0b;
+}
+
+.equity-title {
+  color: #8b5cf6;
+}
+
+.statement-items {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+}
+
+.statement-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.75rem;
+  background: #f9fafb;
+  border-radius: 8px;
+  transition: all 0.2s;
+}
+
+.statement-item:hover {
+  background: #f3f4f6;
+  transform: translateX(4px);
+}
+
+.item-category {
+  font-weight: 500;
+  color: #374151;
+}
+
+.item-amount {
+  font-weight: 600;
+  font-size: 1.05rem;
+  color: #1f2937;
+}
+
+.item-amount.assets {
+  color: #3b82f6;
+}
+
+.item-amount.liabilities {
+  color: #f59e0b;
+}
+
+.item-amount.equity {
+  color: #8b5cf6;
+}
+
+.no-data {
+  padding: 1rem;
+  text-align: center;
+  color: #6b7280;
+  font-style: italic;
+}
+
+.statement-total {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem;
+  background: #f3f4f6;
+  border-radius: 8px;
+  border-top: 3px solid #667eea;
+  margin-top: 1rem;
+}
+
+.total-label {
+  font-weight: 600;
+  font-size: 1.1rem;
+  color: #374151;
+}
+
+.total-amount {
+  font-weight: 700;
+  font-size: 1.3rem;
+  color: #1f2937;
+}
+
+.assets-total {
+  color: #3b82f6;
+}
+
+.liabilities-total {
+  color: #f59e0b;
+}
+
+.equity-total {
+  color: #8b5cf6;
+}
+
+.balance-equation {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  padding: 1.5rem;
+  background: linear-gradient(135deg, #f3f4f6 0%, #e5e7eb 100%);
+  border-radius: 12px;
+  border: 2px solid #667eea;
+  margin-top: 1.5rem;
+}
+
+.equation-title {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #374151;
+  text-align: center;
+}
+
+.equation-content {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.equation-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 1rem;
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.equation-label {
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: #6b7280;
+  text-transform: uppercase;
+}
+
+.equation-value {
+  font-size: 1.3rem;
+  font-weight: 700;
+}
+
+.equation-value.assets {
+  color: #3b82f6;
+}
+
+.equation-value.liabilities {
+  color: #f59e0b;
+}
+
+.equation-value.equity {
+  color: #8b5cf6;
+}
+
+.equation-symbol {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #374151;
+}
+
+.equation-validation {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.75rem;
+  background: white;
+  border-radius: 8px;
+  margin-top: 0.5rem;
+}
+
+.validation-icon {
+  font-size: 1.2rem;
+}
+
+.validation-text {
+  font-size: 0.95rem;
+  font-weight: 500;
+}
+
+.validation-balanced {
+  color: #10b981;
+}
+
+.validation-unbalanced {
+  color: #ef4444;
+}
+
+@media (max-width: 768px) {
+  .balance-sheet-container {
+    padding: 1rem;
+  }
+
+  .page-header {
+    flex-direction: column;
+    gap: 1rem;
+    align-items: stretch;
+  }
+
+  .header-left {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .header-actions {
+    flex-direction: column;
+  }
+
+  .page-header h1 {
+    font-size: 1.5rem;
+  }
+
+  .equation-content {
+    flex-direction: column;
+  }
+
+  .equation-symbol {
+    transform: rotate(90deg);
+  }
+}

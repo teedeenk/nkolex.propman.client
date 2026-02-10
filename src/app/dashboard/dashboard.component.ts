@@ -20,6 +20,7 @@ export class DashboardComponent implements OnInit {
   isLoading: boolean = true;
   fullName: string | null = null;
   isMenuOpen: boolean = false;
+  isAccountingSubmenuOpen: boolean = false;
   isLoadingFinancialData: boolean = true;
   financialDataError: string | null = null;
 
@@ -193,6 +194,20 @@ export class DashboardComponent implements OnInit {
 
   navigateToTenants(): void {
     this.router.navigate(['/tenants']);
+  }
+
+  toggleAccountingSubmenu(): void {
+    this.isAccountingSubmenuOpen = !this.isAccountingSubmenuOpen;
+  }
+
+  navigateToProfitLoss(): void {
+    this.router.navigate(['/profit-loss']);
+    this.closeMenu();
+  }
+
+  navigateToBalanceSheet(): void {
+    this.router.navigate(['/balance-sheet']);
+    this.closeMenu();
   }
 
   // Activity carousel methods

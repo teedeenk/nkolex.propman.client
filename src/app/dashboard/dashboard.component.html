@@ -223,6 +223,78 @@
               </div>
             </button>
 
+            <!-- Accounting with Submenu -->
+            <div class="menu-item-with-submenu">
+              <button class="menu-item" (click)="toggleAccountingSubmenu()">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="20"
+                  height="20"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                >
+                  <rect x="2" y="7" width="20" height="14" rx="2" ry="2"></rect>
+                  <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path>
+                </svg>
+                <div class="menu-item-text">
+                  <p class="menu-item-title">Accounting</p>
+                  <p class="menu-item-desc">Financial statements & reports</p>
+                </div>
+                <svg
+                  class="submenu-arrow"
+                  [class.open]="isAccountingSubmenuOpen"
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="16"
+                  height="16"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                >
+                  <polyline points="6 9 12 15 18 9"></polyline>
+                </svg>
+              </button>
+
+              <!-- Submenu Items -->
+              <div class="submenu" [class.open]="isAccountingSubmenuOpen">
+                <button class="submenu-item" (click)="navigateToProfitLoss()">
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="18"
+                    height="18"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                  >
+                    <line x1="12" y1="1" x2="12" y2="23"></line>
+                    <path
+                      d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"
+                    ></path>
+                  </svg>
+                  <span>Profit & Loss Statement</span>
+                </button>
+                <button class="submenu-item" (click)="navigateToBalanceSheet()">
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="18"
+                    height="18"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                  >
+                    <path
+                      d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"
+                    ></path>
+                  </svg>
+                  <span>Balance Sheet</span>
+                </button>
+              </div>
+            </div>
+
             <button class="menu-item" (click)="navigateToSettings()">
               <svg
                 xmlns="http://www.w3.org/2000/svg"
