@@ -86,7 +86,7 @@
             <div *ngFor="let item of revenue" class="statement-item">
               <span class="item-category">{{ item.category }}</span>
               <span class="item-amount positive"
-                >£{{ item.amount.toFixed(2) }}</span
+                >R {{ item.amount.toFixed(2) }}</span
               >
             </div>
             <div *ngIf="revenue.length === 0" class="no-data">
@@ -96,7 +96,7 @@
           <div class="statement-total">
             <span class="total-label">Total Revenue</span>
             <span class="total-amount revenue-total"
-              >£{{ totalRevenue.toFixed(2) }}</span
+              >R {{ totalRevenue.toFixed(2) }}</span
             >
           </div>
         </div>
@@ -108,7 +108,7 @@
             <div *ngFor="let item of expenses" class="statement-item">
               <span class="item-category">{{ item.category }}</span>
               <span class="item-amount negative"
-                >£{{ item.amount.toFixed(2) }}</span
+                >R {{ item.amount.toFixed(2) }}</span
               >
             </div>
             <div *ngIf="expenses.length === 0" class="no-data">
@@ -118,7 +118,7 @@
           <div class="statement-total">
             <span class="total-label">Total Expenses</span>
             <span class="total-amount expense-total"
-              >£{{ totalExpenses.toFixed(2) }}</span
+              >R {{ totalExpenses.toFixed(2) }}</span
             >
           </div>
         </div>
@@ -160,7 +160,9 @@
             </div>
             <div class="net-income-text">
               <span class="net-income-label">Net Income</span>
-              <span class="net-income-amount">£{{ netIncome.toFixed(2) }}</span>
+              <span class="net-income-amount"
+                >R {{ netIncome.toFixed(2) }}</span
+              >
             </div>
           </div>
         </div>

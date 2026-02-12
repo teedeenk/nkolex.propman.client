@@ -85,7 +85,7 @@
           <div class="statement-items">
             <div *ngFor="let item of assets" class="statement-item">
               <span class="item-category">{{ item.category }}</span>
-              <span class="item-amount">£{{ item.amount.toFixed(2) }}</span>
+              <span class="item-amount">R {{ item.amount.toFixed(2) }}</span>
             </div>
             <div *ngIf="assets.length === 0" class="no-data">
               No asset data available
@@ -94,18 +94,17 @@
           <div class="statement-total">
             <span class="total-label">Total Assets</span>
             <span class="total-amount assets-total"
-              >£{{ totalAssets.toFixed(2) }}</span
+              >R {{ totalAssets.toFixed(2) }}</span
             >
           </div>
         </div>
-
         <!-- Liabilities Section -->
         <div class="statement-section">
           <h3 class="section-title liabilities-title">Liabilities</h3>
           <div class="statement-items">
             <div *ngFor="let item of liabilities" class="statement-item">
               <span class="item-category">{{ item.category }}</span>
-              <span class="item-amount">£{{ item.amount.toFixed(2) }}</span>
+              <span class="item-amount">R {{ item.amount.toFixed(2) }}</span>
             </div>
             <div *ngIf="liabilities.length === 0" class="no-data">
               No liability data available
@@ -114,18 +113,17 @@
           <div class="statement-total">
             <span class="total-label">Total Liabilities</span>
             <span class="total-amount liabilities-total"
-              >£{{ totalLiabilities.toFixed(2) }}</span
+              >R {{ totalLiabilities.toFixed(2) }}</span
             >
           </div>
         </div>
-
         <!-- Equity Section -->
         <div class="statement-section">
           <h3 class="section-title equity-title">Equity</h3>
           <div class="statement-items">
             <div *ngFor="let item of equity" class="statement-item">
               <span class="item-category">{{ item.category }}</span>
-              <span class="item-amount">£{{ item.amount.toFixed(2) }}</span>
+              <span class="item-amount">R {{ item.amount.toFixed(2) }}</span>
             </div>
             <div *ngIf="equity.length === 0" class="no-data">
               No equity data available
@@ -134,23 +132,22 @@
           <div class="statement-total">
             <span class="total-label">Total Equity</span>
             <span class="total-amount equity-total"
-              >£{{ totalEquity.toFixed(2) }}</span
+              >R {{ totalEquity.toFixed(2) }}</span
             >
           </div>
         </div>
-
         <!-- Balance Check -->
         <div class="statement-section balance-check">
           <div class="balance-equation">
             <div class="equation-item">
               <span class="equation-label">Assets</span>
-              <span class="equation-value">£{{ totalAssets.toFixed(2) }}</span>
+              <span class="equation-value">R {{ totalAssets.toFixed(2) }}</span>
             </div>
             <div class="equation-operator">=</div>
             <div class="equation-item">
               <span class="equation-label">Liabilities + Equity</span>
               <span class="equation-value"
-                >£{{ (totalLiabilities + totalEquity).toFixed(2) }}</span
+                >R {{ (totalLiabilities + totalEquity).toFixed(2) }}</span
               >
             </div>
           </div>
