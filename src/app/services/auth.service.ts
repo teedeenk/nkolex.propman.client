@@ -1,13 +1,17 @@
 import { Injectable, Injector } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { environment } from '../../environments/environment';
-import { Observable, BehaviorSubject, tap } from 'rxjs';
+import { Observable, BehaviorSubject, tap, switchMap, map } from 'rxjs';
 
 export interface LoginResponse {
   token: string;
   email: string;
   expiration: string;
   fullName: string;
+}
+
+export interface ProfileResponse {
+  roles: string[];
 }
 
 @Injectable({
@@ -17,7 +21,7 @@ export class AuthService {
   private apiUrl = environment.apiUrl;
   private tokenKey = 'auth_token';
   private currentUserSubject = new BehaviorSubject<string | null>(
-    this.getStoredFullName()
+    this.getStoredFullName(),
   );
 
   public currentUser$ = this.currentUserSubject.asObservable();
@@ -31,16 +35,27 @@ export class AuthService {
         tap((response) => {
           this.setToken(response.token);
           this.setEmail(response.email);
-          this.currentUserSubject.next(response.email);
           this.setFullName(response.fullName);
-          this.currentUserSubject.next(response.fullName);
-        })
+        }),
+        switchMap((response) => this.loadProfile().pipe(map(() => response))),
+        tap(() => {
+          this.currentUserSubject.next(this.getStoredFullName());
+        }),
       );
+  }
+
+  loadProfile(): Observable<ProfileResponse> {
+    return this.http.get<ProfileResponse>(`${this.apiUrl}/auth/profile`).pipe(
+      tap((profile) => {
+        this.setRoles(profile.roles ?? []);
+      }),
+    );
   }
 
   logout(): void {
     localStorage.removeItem(this.tokenKey);
     localStorage.removeItem('user_email');
+    localStorage.removeItem('user_roles');
     this.currentUserSubject.next(null);
   }
 
@@ -56,6 +71,15 @@ export class AuthService {
     return payLoad.exp > Date.now() / 1000;
   }
 
+  getRoles(): string[] {
+    return this.getStoredRoles();
+  }
+
+  hasManagerAccess(): boolean {
+    const roles = this.getRoles().map((r) => r.toLowerCase());
+    return roles.includes('admin') || roles.includes('propertymanager');
+  }
+
   private setToken(token: string): void {
     localStorage.setItem(this.tokenKey, token);
   }
@@ -68,11 +92,26 @@ export class AuthService {
     localStorage.setItem('user_fullname', fullName);
   }
 
+  private setRoles(roles: string[]): void {
+    localStorage.setItem('user_roles', JSON.stringify(roles));
+  }
+
   private getStoredFullName(): string | null {
     return localStorage.getItem('user_fullname');
   }
 
   private getStoredEmail(): string | null {
     return localStorage.getItem('user_email');
+  }
+
+  private getStoredRoles(): string[] {
+    const stored = localStorage.getItem('user_roles');
+    if (!stored) return [];
+    try {
+      const parsed = JSON.parse(stored);
+      return Array.isArray(parsed) ? parsed : [];
+    } catch {
+      return [];
+    }
   }
 }

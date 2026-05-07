@@ -9,6 +9,7 @@ import { InvoicesComponent } from './invoices/invoices.component';
 import { FinancialStatementsComponent } from './financial-statements/financial-statements.component';
 import { ProfitLossComponent } from './profit-loss/profit-loss.component';
 import { BalanceSheetComponent } from './balance-sheet/balance-sheet.component';
+import { PropertiesComponent } from './properties/properties.component';
 
 export const routes: Routes = [
   { path: 'register', component: RegisterComponent },
@@ -21,6 +22,7 @@ export const routes: Routes = [
   { path: 'financial-statements', component: FinancialStatementsComponent },
   { path: 'profit-loss', component: ProfitLossComponent },
   { path: 'balance-sheet', component: BalanceSheetComponent },
+  { path: 'properties', component: PropertiesComponent },
   { path: '', pathMatch: 'full', redirectTo: '' }, // stays on AppComponent (landing page)
   { path: '**', redirectTo: '' }, // redirect unknown routes to landing page
 ];

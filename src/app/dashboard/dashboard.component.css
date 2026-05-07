@@ -230,6 +230,13 @@
   margin-top: 0.125rem;
 }
 
+/* Restricted menu items — shown but not interactive for guest/tenant roles */
+.menu-item-restricted {
+  opacity: 0.4;
+  pointer-events: none;
+  cursor: not-allowed;
+}
+
 /* Submenu Styles */
 .menu-item-with-submenu {
   display: flex;

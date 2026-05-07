@@ -19,6 +19,7 @@ import { CommonModule } from '@angular/common';
 export class DashboardComponent implements OnInit {
   isLoading: boolean = true;
   fullName: string | null = null;
+  canManage: boolean = false;
   isMenuOpen: boolean = false;
   isAccountingSubmenuOpen: boolean = false;
   isLoadingFinancialData: boolean = true;
@@ -46,9 +47,15 @@ export class DashboardComponent implements OnInit {
       next: (fullName) => {
         if (fullName) {
           this.fullName = fullName;
+          this.canManage = this.authService.hasManagerAccess();
           this.isLoading = false;
           this.loadFinancialData();
           this.loadActivities();
+          this.authService.loadProfile().subscribe({
+            next: () => {
+              this.canManage = this.authService.hasManagerAccess();
+            },
+          });
         } else {
           this.isLoading = false;
           this.router.navigate(['/login']);
@@ -78,7 +85,6 @@ export class DashboardComponent implements OnInit {
     this.isLoadingFinancialData = true;
     this.financialDataError = null;
 
-    // Load both financial data and raw transactions
     this.financialDataService.getFinancialData().subscribe({
       next: (data) => {
         this.financialData = data;
@@ -194,6 +200,10 @@ export class DashboardComponent implements OnInit {
 
   navigateToTenants(): void {
     this.router.navigate(['/tenants']);
+  }
+
+  navigateToProperties(): void {
+    this.router.navigate(['/properties']);
   }
 
   toggleAccountingSubmenu(): void {

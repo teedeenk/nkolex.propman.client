@@ -162,7 +162,14 @@
               </div>
             </button>
 
-            <button class="menu-item" (click)="navigateToUpload()">
+            <button
+              class="menu-item"
+              [class.menu-item-restricted]="!canManage"
+              [attr.title]="
+                !canManage ? 'Requires Admin or Property Manager role' : null
+              "
+              (click)="navigateToUpload()"
+            >
               <svg
                 xmlns="http://www.w3.org/2000/svg"
                 width="20"
@@ -182,7 +189,14 @@
               </div>
             </button>
 
-            <button class="menu-item" (click)="navigateToActivities()">
+            <button
+              class="menu-item"
+              [class.menu-item-restricted]="!canManage"
+              [attr.title]="
+                !canManage ? 'Requires Admin or Property Manager role' : null
+              "
+              (click)="navigateToActivities()"
+            >
               <svg
                 xmlns="http://www.w3.org/2000/svg"
                 width="20"
@@ -202,7 +216,14 @@
               </div>
             </button>
 
-            <button class="menu-item" (click)="navigateToTenants()">
+            <button
+              class="menu-item"
+              [class.menu-item-restricted]="!canManage"
+              [attr.title]="
+                !canManage ? 'Requires Admin or Property Manager role' : null
+              "
+              (click)="navigateToTenants()"
+            >
               <svg
                 xmlns="http://www.w3.org/2000/svg"
                 width="20"
@@ -223,8 +244,40 @@
               </div>
             </button>
 
+            <button
+              class="menu-item"
+              [class.menu-item-restricted]="!canManage"
+              [attr.title]="
+                !canManage ? 'Requires Admin or Property Manager role' : null
+              "
+              (click)="navigateToProperties()"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="20"
+                height="20"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+              >
+                <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+                <polyline points="9 22 9 12 15 12 15 22"></polyline>
+              </svg>
+              <div class="menu-item-text">
+                <p class="menu-item-title">Properties</p>
+                <p class="menu-item-desc">Manage your portfolio</p>
+              </div>
+            </button>
+
             <!-- Accounting with Submenu -->
-            <div class="menu-item-with-submenu">
+            <div
+              class="menu-item-with-submenu"
+              [class.menu-item-restricted]="!canManage"
+              [attr.title]="
+                !canManage ? 'Requires Admin or Property Manager role' : null
+              "
+            >
               <button class="menu-item" (click)="toggleAccountingSubmenu()">
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
