@@ -88,7 +88,6 @@ export class InvoicesComponent implements OnInit {
 
   toggleSelectAll(): void {
     this.tenants.forEach((tenant) => {
-      // Only select active tenants
       if (tenant.status === 'active') {
         tenant.selected = this.selectAll;
       }
@@ -130,16 +129,13 @@ export class InvoicesComponent implements OnInit {
 
     this.isSending = true;
 
-    // Generate and download PDFs if checkbox is checked
     if (this.downloadPdfs) {
       this.invoiceService.generateMultipleInvoices(this.previewTenants);
     }
 
-    // Simulate API call for sending emails
     setTimeout(() => {
       this.isSending = false;
       
-      // Mark selected tenants as sent
       this.previewTenants.forEach((tenant) => {
         tenant.invoiceStatus = 'sent';
       });
@@ -150,7 +146,6 @@ export class InvoicesComponent implements OnInit {
       
       alert(message);
       
-      // Reset selections
       this.tenants.forEach((t) => (t.selected = false));
       this.selectAll = false;
       this.closePreview();

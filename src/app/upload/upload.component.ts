@@ -52,15 +52,13 @@ export class UploadComponent {
   }
 
   private handleFile(file: File): void {
-    // Validate file type
     if (!file.name.toLowerCase().endsWith('.csv')) {
       this.uploadError = 'Please select a CSV file';
       this.selectedFile = null;
       return;
     }
 
-    // Validate file size (max 10MB)
-    const maxSize = 10 * 1024 * 1024; // 10MB in bytes
+    const maxSize = 10 * 1024 * 1024;
     if (file.size > maxSize) {
       this.uploadError = 'File size must be less than 10MB';
       this.selectedFile = null;
@@ -93,7 +91,6 @@ export class UploadComponent {
         this.isUploading = false;
         this.uploadSuccess = true;
 
-        // Redirect to dashboard after 2 seconds
         setTimeout(() => {
           this.router.navigate(['/dashboard']);
         }, 2000);

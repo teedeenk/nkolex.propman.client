@@ -15,7 +15,6 @@ export interface Statement {
   statementLines: StatementLine[];
 }
 
-// The API returns an array directly, not wrapped in an object
 export type ApiResponse = Statement[];
 
 export interface FinancialData {
@@ -36,7 +35,6 @@ export class FinancialDataService {
   ) {}
 
   getFinancialData(): Observable<FinancialData[]> {
-    // Add debugging to see if token exists
     const token = this.authService.getToken();
     console.log(
       '[FinancialDataService] Token check:',
@@ -78,7 +76,6 @@ export class FinancialDataService {
           return [];
         }
 
-        // Flatten all statement lines from all statements
         return response.flatMap((statement) => statement.statementLines || []);
       }),
       catchError((error: HttpErrorResponse) => {
@@ -100,7 +97,6 @@ export class FinancialDataService {
       return [];
     }
 
-    // Flatten all statement lines from all statements
     const allTransactions = apiResponse.flatMap((statement) => {
       console.log('[FinancialDataService] Processing statement:', statement);
       return statement.statementLines || [];
@@ -108,13 +104,12 @@ export class FinancialDataService {
 
     console.log('[FinancialDataService] All transactions:', allTransactions);
 
-    // Group transactions by month
     const monthlyData: { [key: string]: { income: number; expenses: number } } =
       {};
 
     allTransactions.forEach((transaction) => {
       if (!transaction.date || transaction.amount === undefined) {
-        return; // Skip invalid transactions
+        return;
       }
 
       const date = new Date(transaction.date);
@@ -125,7 +120,6 @@ export class FinancialDataService {
         monthlyData[monthKey] = { income: 0, expenses: 0 };
       }
 
-      // Positive amounts are income, negative amounts are expenses
       if (transaction.amount > 0) {
         monthlyData[monthKey].income += transaction.amount;
       } else {
@@ -133,7 +127,6 @@ export class FinancialDataService {
       }
     });
 
-    // Convert to array and sort by chronological date
     const result = Object.entries(monthlyData)
       .map(([monthKey, data]) => {
         const [year, month] = monthKey.split('-');
@@ -142,16 +135,15 @@ export class FinancialDataService {
 
         return {
           month: monthName,
-          income: Math.round(data.income * 100) / 100, // Round to 2 decimal places
+          income: Math.round(data.income * 100) / 100,
           expenses: Math.round(data.expenses * 100) / 100,
-          sortDate: date, // Keep the date for sorting purposes
+          sortDate: date,
         };
       })
       .sort((a, b) => {
-        // Sort by actual date chronologically (oldest first)
         return a.sortDate.getTime() - b.sortDate.getTime();
       })
-      .map(({ month, income, expenses }) => ({ month, income, expenses })); // Remove sortDate from final result
+      .map(({ month, income, expenses }) => ({ month, income, expenses }));
 
     return result;
   }

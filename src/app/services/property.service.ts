@@ -4,15 +4,13 @@ import { Observable, of } from 'rxjs';
 import { environment } from '../../environments/environment';
 
 export interface Property {
-  id: number;
+  id: string;
   name: string;
   address: string;
-  type: 'residential' | 'commercial' | 'mixed';
-  units: number;
-  purchasePrice: number;
-  currentValue: number;
-  monthlyIncome: number;
-  status: 'active' | 'vacant' | 'maintenance';
+  propertyManager: string;
+  tenants: string[];
+  statement: string;
+  propertyType: string;
 }
 
 @Injectable({
@@ -27,8 +25,13 @@ export class PropertyService {
     return this.http.get<Property[]>(`${this.apiUrl}/properties`);
   }
 
-  addProperty(property: Omit<Property, 'id'>): Observable<Property> {
-    return this.http.post<Property>(`${this.apiUrl}/properties`, property);
+  addProperty(
+    property: Omit<Property, 'id' | 'tenants' | 'statement'>,
+  ): Observable<Property> {
+    return this.http.post<Property>(
+      `${this.apiUrl}/property/uploadproperty`,
+      property,
+    );
   }
 
   updateProperty(property: Property): Observable<Property> {
@@ -38,7 +41,7 @@ export class PropertyService {
     );
   }
 
-  deleteProperty(id: number): Observable<void> {
+  deleteProperty(id: string): Observable<void> {
     return this.http.delete<void>(`${this.apiUrl}/properties/${id}`);
   }
 }

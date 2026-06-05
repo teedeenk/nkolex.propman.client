@@ -11,6 +11,7 @@ export interface LoginResponse {
 }
 
 export interface ProfileResponse {
+  id: string;
   roles: string[];
 }
 
@@ -47,6 +48,7 @@ export class AuthService {
   loadProfile(): Observable<ProfileResponse> {
     return this.http.get<ProfileResponse>(`${this.apiUrl}/auth/profile`).pipe(
       tap((profile) => {
+        this.setUserId(profile.id ?? '');
         this.setRoles(profile.roles ?? []);
       }),
     );
@@ -56,6 +58,7 @@ export class AuthService {
     localStorage.removeItem(this.tokenKey);
     localStorage.removeItem('user_email');
     localStorage.removeItem('user_roles');
+    localStorage.removeItem('user_id');
     this.currentUserSubject.next(null);
   }
 
@@ -75,6 +78,10 @@ export class AuthService {
     return this.getStoredRoles();
   }
 
+  getUserId(): string {
+    return localStorage.getItem('user_id') ?? '';
+  }
+
   hasManagerAccess(): boolean {
     const roles = this.getRoles().map((r) => r.toLowerCase());
     return roles.includes('admin') || roles.includes('propertymanager');
@@ -82,6 +89,10 @@ export class AuthService {
 
   private setToken(token: string): void {
     localStorage.setItem(this.tokenKey, token);
+  }
+
+  private setUserId(id: string): void {
+    localStorage.setItem('user_id', id);
   }
 
   private setEmail(email: string): void {

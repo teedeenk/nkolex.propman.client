@@ -1,7 +1,6 @@
 import { Injectable } from '@angular/core';
 import { TDocumentDefinitions } from 'pdfmake/interfaces';
 
-// Lazy load pdfmake to avoid initialization issues
 const pdfMakeModule = () => import('pdfmake/build/pdfmake');
 const pdfFontsModule = () => import('pdfmake/build/vfs_fonts');
 
@@ -27,14 +26,13 @@ export class InvoiceService {
   generateInvoice(tenant: Tenant): TDocumentDefinitions {
     const invoiceDate = new Date();
     const dueDate = new Date();
-    dueDate.setDate(dueDate.getDate() + 30); // 30 days payment term
+    dueDate.setDate(dueDate.getDate() + 30);
     const invoiceNumber = `INV-${invoiceDate.getFullYear()}${(invoiceDate.getMonth() + 1).toString().padStart(2, '0')}${tenant.id.toString().padStart(4, '0')}`;
     const vat = tenant.rentAmount * 0.15;
     const total = tenant.rentAmount + vat;
 
     const documentDefinition: TDocumentDefinitions = {
       content: [
-        // Header with company branding
         {
           canvas: [
             {
@@ -67,7 +65,6 @@ export class InvoiceService {
           absolutePosition: { x: 55, y: 87 },
         },
 
-        // Invoice title and details
         {
           columns: [
             {
@@ -107,7 +104,6 @@ export class InvoiceService {
           margin: [0, 30, 0, 20],
         },
 
-        // Bill To section
         {
           text: 'BILL TO:',
           style: 'subheader',
@@ -135,7 +131,6 @@ export class InvoiceService {
           margin: [0, 0, 0, 20],
         },
 
-        // Items table
         {
           table: {
             headerRows: 1,
@@ -181,7 +176,6 @@ export class InvoiceService {
           },
         },
 
-        // Totals section
         {
           columns: [
             { width: '*', text: '' },
@@ -240,7 +234,6 @@ export class InvoiceService {
           ],
         },
 
-        // Payment details
         {
           text: 'PAYMENT DETAILS:',
           style: 'subheader',
@@ -287,7 +280,6 @@ export class InvoiceService {
           ],
         },
 
-        // Footer
         {
           text: 'Thank you for your business!',
           alignment: 'center',
@@ -337,18 +329,14 @@ export class InvoiceService {
     const documentDefinition = this.generateInvoice(tenant);
     const fileName = `Invoice_${tenant.name.replace(/\s+/g, '_')}_${new Date().getTime()}.pdf`;
 
-    // Lazy load pdfMake modules
     const pdfMakeLib = await pdfMakeModule();
     const pdfFontsLib = await pdfFontsModule();
 
-    // Get the default exports
     const pdfMake = (pdfMakeLib as any).default || pdfMakeLib;
     const pdfFonts = (pdfFontsLib as any).default || pdfFontsLib;
 
-    // Initialize vfs
     pdfMake.vfs = pdfFonts.pdfMake?.vfs || pdfFonts.vfs;
 
-    // Create and download PDF
     pdfMake.createPdf(documentDefinition).download(fileName);
   }
 

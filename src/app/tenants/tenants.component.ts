@@ -118,7 +118,6 @@ export class TenantsComponent implements OnInit {
       return statusMatch && searchMatch;
     });
 
-    // Sort by name
     this.filteredTenants.sort((a, b) => a.name.localeCompare(b.name));
   }
 

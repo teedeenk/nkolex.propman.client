@@ -44,32 +44,6 @@
             (input)="onSearchChange()"
           />
         </div>
-        <div class="filter-group">
-          <label for="statusFilter">Status:</label>
-          <select
-            id="statusFilter"
-            [(ngModel)]="filterStatus"
-            (change)="onFilterChange()"
-          >
-            <option value="all">All</option>
-            <option value="active">Active</option>
-            <option value="vacant">Vacant</option>
-            <option value="maintenance">Maintenance</option>
-          </select>
-        </div>
-        <div class="filter-group">
-          <label for="typeFilter">Type:</label>
-          <select
-            id="typeFilter"
-            [(ngModel)]="filterType"
-            (change)="onFilterChange()"
-          >
-            <option value="all">All</option>
-            <option value="residential">Residential</option>
-            <option value="commercial">Commercial</option>
-            <option value="mixed">Mixed</option>
-          </select>
-        </div>
       </div>
       <button class="add-btn" (click)="showAddForm()">
         <svg
@@ -157,11 +131,16 @@
             />
           </div>
           <div class="form-group">
-            <label for="addType">Type *</label>
-            <select id="addType" [(ngModel)]="newProperty.type" name="type">
-              <option value="residential">Residential</option>
-              <option value="commercial">Commercial</option>
-              <option value="mixed">Mixed</option>
+            <label for="addPropertyType">Property Type</label>
+            <select
+              id="addPropertyType"
+              [(ngModel)]="newProperty.propertyType"
+              name="propertyType"
+            >
+              <option value="">Select type...</option>
+              <option value="Residential">Residential</option>
+              <option value="Commercial">Commercial</option>
+              <option value="Mixed">Mixed</option>
             </select>
           </div>
         </div>
@@ -173,68 +152,8 @@
               id="addAddress"
               [(ngModel)]="newProperty.address"
               name="address"
-              placeholder="e.g., 123 Maple Street, Springfield, IL 62701"
+              placeholder="e.g., 123 Maple Street, Springfield"
               required
-            />
-          </div>
-        </div>
-        <div class="form-row">
-          <div class="form-group">
-            <label for="addUnits">Number of Units</label>
-            <input
-              type="number"
-              id="addUnits"
-              [(ngModel)]="newProperty.units"
-              name="units"
-              min="1"
-              placeholder="1"
-            />
-          </div>
-          <div class="form-group">
-            <label for="addStatus">Status</label>
-            <select
-              id="addStatus"
-              [(ngModel)]="newProperty.status"
-              name="status"
-            >
-              <option value="active">Active</option>
-              <option value="vacant">Vacant</option>
-              <option value="maintenance">Maintenance</option>
-            </select>
-          </div>
-        </div>
-        <div class="form-row">
-          <div class="form-group">
-            <label for="addPurchasePrice">Purchase Price ($)</label>
-            <input
-              type="number"
-              id="addPurchasePrice"
-              [(ngModel)]="newProperty.purchasePrice"
-              name="purchasePrice"
-              min="0"
-              placeholder="0"
-            />
-          </div>
-          <div class="form-group">
-            <label for="addCurrentValue">Current Value ($)</label>
-            <input
-              type="number"
-              id="addCurrentValue"
-              [(ngModel)]="newProperty.currentValue"
-              name="currentValue"
-              min="0"
-              placeholder="0"
-            />
-          </div>
-          <div class="form-group">
-            <label for="addMonthlyIncome">Monthly Income ($)</label>
-            <input
-              type="number"
-              id="addMonthlyIncome"
-              [(ngModel)]="newProperty.monthlyIncome"
-              name="monthlyIncome"
-              min="0"
-              placeholder="0"
             />
           </div>
         </div>
@@ -327,15 +246,16 @@
             />
           </div>
           <div class="form-group">
-            <label for="editType">Type *</label>
+            <label for="editPropertyType">Property Type</label>
             <select
-              id="editType"
-              [(ngModel)]="editingProperty.type"
-              name="editType"
+              id="editPropertyType"
+              [(ngModel)]="editingProperty.propertyType"
+              name="editPropertyType"
             >
-              <option value="residential">Residential</option>
-              <option value="commercial">Commercial</option>
-              <option value="mixed">Mixed</option>
+              <option value="">Select type...</option>
+              <option value="Residential">Residential</option>
+              <option value="Commercial">Commercial</option>
+              <option value="Mixed">Mixed</option>
             </select>
           </div>
         </div>
@@ -347,64 +267,21 @@
               id="editAddress"
               [(ngModel)]="editingProperty.address"
               name="editAddress"
-              placeholder="e.g., 123 Maple Street, Springfield, IL 62701"
+              placeholder="e.g., 123 Maple Street, Springfield"
               required
             />
           </div>
         </div>
         <div class="form-row">
-          <div class="form-group">
-            <label for="editUnits">Number of Units</label>
+          <div class="form-group full-width">
+            <label for="editPropertyManager">Property Manager *</label>
             <input
-              type="number"
-              id="editUnits"
-              [(ngModel)]="editingProperty.units"
-              name="editUnits"
-              min="1"
-            />
-          </div>
-          <div class="form-group">
-            <label for="editStatus">Status</label>
-            <select
-              id="editStatus"
-              [(ngModel)]="editingProperty.status"
-              name="editStatus"
-            >
-              <option value="active">Active</option>
-              <option value="vacant">Vacant</option>
-              <option value="maintenance">Maintenance</option>
-            </select>
-          </div>
-        </div>
-        <div class="form-row">
-          <div class="form-group">
-            <label for="editPurchasePrice">Purchase Price ($)</label>
-            <input
-              type="number"
-              id="editPurchasePrice"
-              [(ngModel)]="editingProperty.purchasePrice"
-              name="editPurchasePrice"
-              min="0"
-            />
-          </div>
-          <div class="form-group">
-            <label for="editCurrentValue">Current Value ($)</label>
-            <input
-              type="number"
-              id="editCurrentValue"
-              [(ngModel)]="editingProperty.currentValue"
-              name="editCurrentValue"
-              min="0"
-            />
-          </div>
-          <div class="form-group">
-            <label for="editMonthlyIncome">Monthly Income ($)</label>
-            <input
-              type="number"
-              id="editMonthlyIncome"
-              [(ngModel)]="editingProperty.monthlyIncome"
-              name="editMonthlyIncome"
-              min="0"
+              type="text"
+              id="editPropertyManager"
+              [(ngModel)]="editingProperty.propertyManager"
+              name="editPropertyManager"
+              placeholder="e.g., John Smith"
+              required
             />
           </div>
         </div>
@@ -456,16 +333,12 @@
       <h3>No properties found</h3>
       <p>
         {{
-          searchQuery || filterStatus !== "all" || filterType !== "all"
-            ? "Try adjusting your search or filters."
+          searchQuery
+            ? "Try adjusting your search."
             : "Add your first property to get started."
         }}
       </p>
-      <button
-        class="add-btn"
-        (click)="showAddForm()"
-        *ngIf="!searchQuery && filterStatus === 'all' && filterType === 'all'"
-      >
+      <button class="add-btn" (click)="showAddForm()" *ngIf="!searchQuery">
         <svg
           xmlns="http://www.w3.org/2000/svg"
           width="20"
@@ -505,13 +378,8 @@
           </div>
           <div class="property-title-group">
             <h3>{{ property.name }}</h3>
-            <span class="type-badge">{{ getTypeLabel(property.type) }}</span>
+            <span class="type-badge">{{ property.propertyType || "N/A" }}</span>
           </div>
-          <span
-            class="status-badge"
-            [ngClass]="getStatusClass(property.status)"
-            >{{ property.status }}</span
-          >
         </div>
 
         <div class="property-address">
@@ -532,26 +400,16 @@
 
         <div class="property-stats">
           <div class="stat">
-            <span class="stat-label">Units</span>
-            <span class="stat-value">{{ property.units }}</span>
+            <span class="stat-label">Type</span>
+            <span class="stat-value">{{ property.propertyType || "N/A" }}</span>
           </div>
           <div class="stat">
-            <span class="stat-label">Purchase Price</span>
-            <span class="stat-value">{{
-              formatCurrency(property.purchasePrice)
-            }}</span>
+            <span class="stat-label">Manager</span>
+            <span class="stat-value">{{ property.propertyManager }}</span>
           </div>
           <div class="stat">
-            <span class="stat-label">Current Value</span>
-            <span class="stat-value">{{
-              formatCurrency(property.currentValue)
-            }}</span>
-          </div>
-          <div class="stat">
-            <span class="stat-label">Monthly Income</span>
-            <span class="stat-value income">{{
-              formatCurrency(property.monthlyIncome)
-            }}</span>
+            <span class="stat-label">Tenants</span>
+            <span class="stat-value">{{ property.tenants.length }}</span>
           </div>
         </div>
 

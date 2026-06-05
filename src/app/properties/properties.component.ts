@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { PropertyService, Property } from '../services/property.service';
+import { AuthService } from '../services/auth.service';
 
 @Component({
   selector: 'app-properties',
@@ -16,7 +17,6 @@ export class PropertiesComponent implements OnInit {
   filteredProperties: Property[] = [];
 
   filterStatus: string = 'all';
-  filterType: string = 'all';
   searchQuery: string = '';
 
   isAddingProperty: boolean = false;
@@ -27,13 +27,15 @@ export class PropertiesComponent implements OnInit {
   saveError: string | null = null;
   saveSuccess: boolean = false;
 
-  newProperty: Omit<Property, 'id'> = this.emptyPropertyForm();
+  newProperty: Omit<Property, 'id' | 'tenants' | 'statement'> =
+    this.emptyPropertyForm();
 
   editingProperty: Property | null = null;
 
   constructor(
     private router: Router,
     private propertyService: PropertyService,
+    private authService: AuthService,
   ) {}
 
   ngOnInit(): void {
@@ -54,38 +56,29 @@ export class PropertiesComponent implements OnInit {
     });
   }
 
-  private emptyPropertyForm(): Omit<Property, 'id'> {
+  private emptyPropertyForm(): Omit<Property, 'id' | 'tenants' | 'statement'> {
     return {
       name: '',
       address: '',
-      type: 'residential',
-      units: 1,
-      purchasePrice: 0,
-      currentValue: 0,
-      monthlyIncome: 0,
-      status: 'active',
+      propertyManager: '',
+      propertyType: '',
     };
   }
 
   applyFilters(): void {
     this.filteredProperties = this.properties.filter((p) => {
-      const matchesStatus =
-        this.filterStatus === 'all' || p.status === this.filterStatus;
-      const matchesType =
-        this.filterType === 'all' || p.type === this.filterType;
       const matchesSearch =
         !this.searchQuery ||
         p.name.toLowerCase().includes(this.searchQuery.toLowerCase()) ||
-        p.address.toLowerCase().includes(this.searchQuery.toLowerCase());
-      return matchesStatus && matchesType && matchesSearch;
+        p.address.toLowerCase().includes(this.searchQuery.toLowerCase()) ||
+        p.propertyManager
+          .toLowerCase()
+          .includes(this.searchQuery.toLowerCase());
+      return matchesSearch;
     });
   }
 
   onSearchChange(): void {
-    this.applyFilters();
-  }
-
-  onFilterChange(): void {
     this.applyFilters();
   }
 
@@ -108,6 +101,14 @@ export class PropertiesComponent implements OnInit {
       return;
     }
 
+    const userId = this.authService.getUserId();
+    if (!userId) {
+      this.saveError =
+        'Unable to determine property manager. Please log in again.';
+      return;
+    }
+
+    this.newProperty.propertyManager = userId;
     this.isSaving = true;
     this.saveError = null;
 
@@ -145,8 +146,12 @@ export class PropertiesComponent implements OnInit {
 
   onSubmitEdit(): void {
     if (!this.editingProperty) return;
-    if (!this.editingProperty.name || !this.editingProperty.address) {
-      this.saveError = 'Property name and address are required.';
+    if (
+      !this.editingProperty.name ||
+      !this.editingProperty.address ||
+      !this.editingProperty.propertyManager
+    ) {
+      this.saveError = 'Property name, address and manager are required.';
       return;
     }
 
@@ -182,22 +187,6 @@ export class PropertiesComponent implements OnInit {
         this.applyFilters();
       },
     });
-  }
-
-  formatCurrency(value: number): string {
-    return new Intl.NumberFormat('en-US', {
-      style: 'currency',
-      currency: 'USD',
-      maximumFractionDigits: 0,
-    }).format(value);
-  }
-
-  getStatusClass(status: string): string {
-    return `status-${status}`;
-  }
-
-  getTypeLabel(type: string): string {
-    return type.charAt(0).toUpperCase() + type.slice(1);
   }
 
   goBack(): void {

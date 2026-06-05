@@ -30,14 +30,12 @@ export class FinancialStatementsComponent implements OnInit {
   financialData: FinancialData[] = [];
   rawTransactions: StatementLine[] = [];
 
-  // Profit & Loss Statement
   revenue: PLItem[] = [];
   expenses: PLItem[] = [];
   totalRevenue: number = 0;
   totalExpenses: number = 0;
   netIncome: number = 0;
 
-  // Balance Sheet
   assets: BalanceSheetItem[] = [];
   liabilities: BalanceSheetItem[] = [];
   equity: BalanceSheetItem[] = [];
@@ -104,14 +102,11 @@ export class FinancialStatementsComponent implements OnInit {
     const revenueCategories = new Map<string, number>();
     const expenseCategories = new Map<string, number>();
 
-    // Process transactions
     this.rawTransactions.forEach((transaction) => {
       const amount = Math.abs(transaction.amount);
       const description = transaction.description.toLowerCase();
 
-      // Categorize as revenue or expense based on amount sign and description
       if (transaction.amount > 0) {
-        // Income/Revenue
         let category = 'Other Income';
         if (description.includes('rent') || description.includes('rental')) {
           category = 'Rental Income';
@@ -129,7 +124,6 @@ export class FinancialStatementsComponent implements OnInit {
           (revenueCategories.get(category) || 0) + amount,
         );
       } else {
-        // Expenses
         let category = 'Other Expenses';
         if (description.includes('insurance')) {
           category = 'Insurance';
@@ -175,7 +169,6 @@ export class FinancialStatementsComponent implements OnInit {
       }
     });
 
-    // Convert to arrays and sort
     this.revenue = Array.from(revenueCategories.entries())
       .map(([category, amount]) => ({ category, amount }))
       .sort((a, b) => b.amount - a.amount);
@@ -184,7 +177,6 @@ export class FinancialStatementsComponent implements OnInit {
       .map(([category, amount]) => ({ category, amount }))
       .sort((a, b) => b.amount - a.amount);
 
-    // Calculate totals
     this.totalRevenue = this.revenue.reduce(
       (sum, item) => sum + item.amount,
       0,
@@ -197,7 +189,6 @@ export class FinancialStatementsComponent implements OnInit {
   }
 
   private calculateBalanceSheet(): void {
-    // Assets
     const totalCash = this.rawTransactions.reduce(
       (sum, t) => sum + t.amount,
       0,
@@ -208,11 +199,10 @@ export class FinancialStatementsComponent implements OnInit {
         category: 'Cash and Cash Equivalents',
         amount: totalCash > 0 ? totalCash : 0,
       },
-      { category: 'Accounts Receivable', amount: 0 }, // Can be calculated from pending payments
-      { category: 'Property Value', amount: 0 }, // Would need property valuation data
+      { category: 'Accounts Receivable', amount: 0 },
+      { category: 'Property Value', amount: 0 },
     ];
 
-    // Liabilities
     const totalPayables = Math.abs(
       this.rawTransactions
         .filter(
@@ -224,11 +214,10 @@ export class FinancialStatementsComponent implements OnInit {
 
     this.liabilities = [
       { category: 'Accounts Payable', amount: totalPayables },
-      { category: 'Mortgage Payable', amount: 0 }, // Would need mortgage data
+      { category: 'Mortgage Payable', amount: 0 },
       { category: 'Other Liabilities', amount: 0 },
     ];
 
-    // Equity
     const retainedEarnings = this.netIncome;
 
     this.equity = [
@@ -236,7 +225,6 @@ export class FinancialStatementsComponent implements OnInit {
       { category: "Owner's Equity", amount: 0 },
     ];
 
-    // Calculate totals
     this.totalAssets = this.assets.reduce((sum, item) => sum + item.amount, 0);
     this.totalLiabilities = this.liabilities.reduce(
       (sum, item) => sum + item.amount,
@@ -252,12 +240,10 @@ export class FinancialStatementsComponent implements OnInit {
   }
 
   exportToPDF(): void {
-    // TODO: Implement PDF export functionality
     alert('PDF export functionality coming soon!');
   }
 
   exportToExcel(): void {
-    // TODO: Implement Excel export functionality
     alert('Excel export functionality coming soon!');
   }
 }

@@ -31,7 +31,6 @@ export class DashboardComponent implements OnInit {
   countdownActive: boolean = false;
   private countdownInterval: any;
 
-  // Activity carousel properties
   upcomingActivities: Activity[] = [];
   currentActivityIndex: number = 0;
 
@@ -89,7 +88,6 @@ export class DashboardComponent implements OnInit {
       next: (data) => {
         this.financialData = data;
 
-        // Also load raw transactions for keyword filtering
         this.financialDataService.getRawTransactions().subscribe({
           next: (rawData) => {
             this.rawTransactions = rawData;
@@ -100,7 +98,6 @@ export class DashboardComponent implements OnInit {
               '[Dashboard] Error fetching raw transactions:',
               error,
             );
-            // Continue even if raw transactions fail
             this.isLoadingFinancialData = false;
           },
         });
@@ -112,7 +109,6 @@ export class DashboardComponent implements OnInit {
           this.financialDataError =
             'Authentication failed. You will be redirected to login in 10 seconds.';
 
-          // Start countdown redirect
           this.startRedirectCountdown();
         } else {
           this.financialDataError =
@@ -137,7 +133,6 @@ export class DashboardComponent implements OnInit {
     this.countdownInterval = setInterval(() => {
       this.redirectCountdown--;
 
-      // Update the error message with countdown
       this.financialDataError = `Authentication failed. Redirecting to login in ${this.redirectCountdown} seconds.`;
 
       if (this.redirectCountdown <= 0) {
@@ -220,7 +215,6 @@ export class DashboardComponent implements OnInit {
     this.closeMenu();
   }
 
-  // Activity carousel methods
   nextActivity(): void {
     if (this.upcomingActivities.length > 0) {
       this.currentActivityIndex =
@@ -310,12 +304,9 @@ export class DashboardComponent implements OnInit {
           transaction.description.toLowerCase().includes(keyword.toLowerCase()),
       )
       .reduce((total, transaction) => {
-        // For income items like rent, take positive amounts
-        // For expense items, take absolute value of negative amounts
         if (keyword === 'rent') {
           return total + (transaction.amount > 0 ? transaction.amount : 0);
         } else {
-          // For expenses, take absolute value of negative amounts
           return (
             total + (transaction.amount < 0 ? Math.abs(transaction.amount) : 0)
           );
@@ -347,7 +338,6 @@ export class DashboardComponent implements OnInit {
       return { percentage: 0, isPositive: false, hasChange: false };
     }
 
-    // Get transactions for this keyword
     const keywordTransactions = this.rawTransactions.filter(
       (transaction) =>
         transaction.description &&
@@ -363,7 +353,6 @@ export class DashboardComponent implements OnInit {
       return { percentage: 0, isPositive: false, hasChange: false };
     }
 
-    // Group by month and sum all transactions for each month
     const monthlyTotals: { [key: string]: number } = {};
 
     keywordTransactions.forEach((transaction) => {
@@ -374,14 +363,11 @@ export class DashboardComponent implements OnInit {
         monthlyTotals[monthKey] = 0;
       }
 
-      // For each transaction, add the appropriate amount to the monthly total
       if (isIncome) {
-        // For income (like rent), sum all positive amounts in the month
         if (transaction.amount > 0) {
           monthlyTotals[monthKey] += transaction.amount;
         }
       } else {
-        // For expenses, sum all negative amounts (as positive values) in the month
         if (transaction.amount < 0) {
           monthlyTotals[monthKey] += Math.abs(transaction.amount);
         }
@@ -390,7 +376,6 @@ export class DashboardComponent implements OnInit {
 
     console.log(`[${keyword}] Monthly totals after grouping:`, monthlyTotals);
 
-    // Sort months chronologically
     const monthKeys = Object.keys(monthlyTotals).sort();
     console.log(`[${keyword}] Sorted month keys:`, monthKeys);
 
@@ -401,7 +386,6 @@ export class DashboardComponent implements OnInit {
       return { percentage: 0, isPositive: false, hasChange: false };
     }
 
-    // Compare most recent month with previous month
     const currentMonthKey = monthKeys[monthKeys.length - 1];
     const previousMonthKey = monthKeys[monthKeys.length - 2];
     const currentMonth = monthlyTotals[currentMonthKey];
@@ -419,7 +403,6 @@ export class DashboardComponent implements OnInit {
       return { percentage: 0, isPositive: false, hasChange: false };
     }
 
-    // Calculate percentage change: ((new - old) / old) * 100
     const change = ((currentMonth - previousMonth) / previousMonth) * 100;
     console.log(
       `[${keyword}] Percentage change: ((${currentMonth} - ${previousMonth}) / ${previousMonth}) * 100 = ${change}%`,
@@ -428,7 +411,7 @@ export class DashboardComponent implements OnInit {
     return {
       percentage: Math.abs(change),
       isPositive: change >= 0,
-      hasChange: Math.abs(change) > 0.1, // Consider changes > 0.1% as significant
+      hasChange: Math.abs(change) > 0.1,
     };
   }
 

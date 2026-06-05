@@ -28,7 +28,6 @@ export class AppComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    // Test if interceptor works with a simple request
     console.log('🧪 [AppComponent] Testing interceptor with a test request');
     this.http.get('https://jsonplaceholder.typicode.com/posts/1').subscribe({
       next: (data) => console.log('🧪 Test request successful:', data),
