@@ -10,19 +10,20 @@ import { FinancialStatementsComponent } from './financial-statements/financial-s
 import { ProfitLossComponent } from './profit-loss/profit-loss.component';
 import { BalanceSheetComponent } from './balance-sheet/balance-sheet.component';
 import { PropertiesComponent } from './properties/properties.component';
+import { authGuard, guestGuard } from './guards/auth.gurard';
 
 export const routes: Routes = [
-  { path: 'register', component: RegisterComponent },
-  { path: 'login', component: LoginComponent },
-  { path: 'dashboard', component: DashboardComponent },
-  { path: 'upload', component: UploadComponent },
-  { path: 'activities', component: ActivitiesComponent },
-  { path: 'tenants', component: TenantsComponent },
-  { path: 'invoices', component: InvoicesComponent },
-  { path: 'financial-statements', component: FinancialStatementsComponent },
-  { path: 'profit-loss', component: ProfitLossComponent },
-  { path: 'balance-sheet', component: BalanceSheetComponent },
-  { path: 'properties', component: PropertiesComponent },
+  { path: 'register', component: RegisterComponent, canActivate: [guestGuard] },
+  { path: 'login', component: LoginComponent, canActivate: [guestGuard] },
+  { path: 'dashboard', component: DashboardComponent, canActivate: [authGuard] },
+  { path: 'upload', component: UploadComponent, canActivate: [authGuard] },
+  { path: 'activities', component: ActivitiesComponent, canActivate: [authGuard] },
+  { path: 'tenants', component: TenantsComponent, canActivate: [authGuard] },
+  { path: 'invoices', component: InvoicesComponent, canActivate: [authGuard] },
+  { path: 'financial-statements', component: FinancialStatementsComponent, canActivate: [authGuard] },
+  { path: 'profit-loss', component: ProfitLossComponent, canActivate: [authGuard] },
+  { path: 'balance-sheet', component: BalanceSheetComponent, canActivate: [authGuard] },
+  { path: 'properties', component: PropertiesComponent, canActivate: [authGuard] },
   { path: '', pathMatch: 'full', redirectTo: '' }, // stays on AppComponent (landing page)
   { path: '**', redirectTo: '' }, // redirect unknown routes to landing page
 ];
