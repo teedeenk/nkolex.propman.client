@@ -10,9 +10,12 @@ export interface LoginResponse {
   fullName: string;
 }
 
+export type SubscriptionTier = 'Free' | 'Premium';
+
 export interface ProfileResponse {
   id: string;
   roles: string[];
+  subscriptionTier?: SubscriptionTier;
 }
 
 @Injectable({
@@ -50,6 +53,7 @@ export class AuthService {
       tap((profile) => {
         this.setUserId(profile.id ?? '');
         this.setRoles(profile.roles ?? []);
+        this.setSubscriptionTier(profile.subscriptionTier ?? 'Free');
       }),
     );
   }
@@ -59,6 +63,7 @@ export class AuthService {
     localStorage.removeItem('user_email');
     localStorage.removeItem('user_roles');
     localStorage.removeItem('user_id');
+    localStorage.removeItem('user_subscription_tier');
     this.currentUserSubject.next(null);
   }
 
@@ -82,9 +87,22 @@ export class AuthService {
     return localStorage.getItem('user_id') ?? '';
   }
 
+  getSubscriptionTier(): SubscriptionTier {
+    return this.getStoredSubscriptionTier();
+  }
+
   hasManagerAccess(): boolean {
     const roles = this.getRoles().map((r) => r.toLowerCase());
     return roles.includes('admin') || roles.includes('propertymanager');
+  }
+
+  /**
+   * Feature gate for premium-only areas of the app (e.g. Accounting, Activities).
+   * Admins always have access; everyone else needs an active Premium subscription.
+   */
+  hasPremiumAccess(): boolean {
+    const roles = this.getRoles().map((r) => r.toLowerCase());
+    return roles.includes('admin') || this.getSubscriptionTier() === 'Premium';
   }
 
   private setToken(token: string): void {
@@ -107,12 +125,21 @@ export class AuthService {
     localStorage.setItem('user_roles', JSON.stringify(roles));
   }
 
+  private setSubscriptionTier(tier: SubscriptionTier): void {
+    localStorage.setItem('user_subscription_tier', tier);
+  }
+
   private getStoredFullName(): string | null {
     return localStorage.getItem('user_fullname');
   }
 
   private getStoredEmail(): string | null {
     return localStorage.getItem('user_email');
+  }
+
+  private getStoredSubscriptionTier(): SubscriptionTier {
+    const stored = localStorage.getItem('user_subscription_tier');
+    return stored === 'Premium' ? 'Premium' : 'Free';
   }
 
   private getStoredRoles(): string[] {

@@ -169,6 +169,10 @@
 .info-card.green {
   background: #f0fdf4;
 }
+.info-card.gold {
+  background: #fffbeb;
+  position: relative;
+}
 .info-icon {
   padding: 0.5rem;
   align-items: center;
@@ -184,6 +188,24 @@
 .info-card.green .info-icon {
   background: #dcfce7;
   color: #16a34a;
+}
+.info-card.gold .info-icon {
+  background: #fde68a;
+  color: #92400e;
+}
+.upgrade-link {
+  align-self: center;
+  border: none;
+  background: #fde68a;
+  color: #92400e;
+  font-size: 0.75rem;
+  font-weight: 600;
+  padding: 0.3rem 0.6rem;
+  border-radius: 999px;
+  cursor: pointer;
+}
+.upgrade-link:hover {
+  background: #fcd34d;
 }
 .info-text,
 .menu-item-text,
@@ -235,6 +257,49 @@
   opacity: 0.4;
   pointer-events: none;
   cursor: not-allowed;
+}
+
+.premium-badge {
+  display: inline-block;
+  margin-left: 0.5rem;
+  padding: 0.0625rem 0.4rem;
+  font-size: 0.625rem;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  color: #92400e;
+  background: #fde68a;
+  border-radius: 999px;
+  vertical-align: middle;
+}
+
+.upgrade-banner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.75rem 1rem;
+  margin-bottom: 1rem;
+  background: #fffbeb;
+  border: 1px solid #fde68a;
+  border-radius: 0.5rem;
+  color: #92400e;
+}
+
+.upgrade-banner p {
+  margin: 0;
+  font-size: 0.875rem;
+  color: #92400e;
+}
+
+.upgrade-banner-close {
+  border: none;
+  background: none;
+  font-size: 1.25rem;
+  line-height: 1;
+  color: #92400e;
+  cursor: pointer;
+  padding: 0 0.25rem;
 }
 
 /* Submenu Styles */

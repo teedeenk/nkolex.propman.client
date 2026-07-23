@@ -1,12 +1,12 @@
 import { Component, OnInit } from '@angular/core';
-import { AuthService } from '../services/auth.service';
+import { AuthService, SubscriptionTier } from '../services/auth.service';
 import {
   FinancialDataService,
   FinancialData,
   StatementLine,
 } from '../services/financial-data.service';
 import { ActivityService, Activity } from '../services/activity.service';
-import { Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 
 @Component({
@@ -20,6 +20,9 @@ export class DashboardComponent implements OnInit {
   isLoading: boolean = true;
   fullName: string | null = null;
   canManage: boolean = false;
+  canAccessPremium: boolean = false;
+  subscriptionTier: SubscriptionTier = 'Free';
+  showUpgradeBanner: boolean = false;
   isMenuOpen: boolean = false;
   isAccountingSubmenuOpen: boolean = false;
   isLoadingFinancialData: boolean = true;
@@ -39,20 +42,28 @@ export class DashboardComponent implements OnInit {
     private financialDataService: FinancialDataService,
     private activityService: ActivityService,
     private router: Router,
+    private route: ActivatedRoute,
   ) {}
 
   ngOnInit(): void {
+    this.showUpgradeBanner =
+      this.route.snapshot.queryParamMap.get('upgradeRequired') === 'true';
+
     this.authService.currentUser$.subscribe({
       next: (fullName) => {
         if (fullName) {
           this.fullName = fullName;
           this.canManage = this.authService.hasManagerAccess();
+          this.canAccessPremium = this.authService.hasPremiumAccess();
+          this.subscriptionTier = this.authService.getSubscriptionTier();
           this.isLoading = false;
           this.loadFinancialData();
           this.loadActivities();
           this.authService.loadProfile().subscribe({
             next: () => {
               this.canManage = this.authService.hasManagerAccess();
+              this.canAccessPremium = this.authService.hasPremiumAccess();
+              this.subscriptionTier = this.authService.getSubscriptionTier();
             },
           });
         } else {
@@ -66,6 +77,10 @@ export class DashboardComponent implements OnInit {
         this.router.navigate(['/login']);
       },
     });
+  }
+
+  dismissUpgradeBanner(): void {
+    this.showUpgradeBanner = false;
   }
 
   private loadActivities(): void {
@@ -176,12 +191,26 @@ export class DashboardComponent implements OnInit {
   }
 
   navigateToSettings(): void {
+    if (!this.canAccessPremium) {
+      this.showUpgradeBanner = true;
+      return;
+    }
     console.log('Navigate to settings');
     this.closeMenu();
   }
 
   navigateToDocumentation(): void {
+    if (!this.canAccessPremium) {
+      this.showUpgradeBanner = true;
+      return;
+    }
     console.log('Navigate to documentation');
+    this.closeMenu();
+  }
+
+  /** Always accessible, regardless of plan, so users can upgrade from the banner/card. */
+  onUpgradeClick(): void {
+    console.log('Navigate to upgrade/billing');
     this.closeMenu();
   }
 
@@ -190,6 +219,10 @@ export class DashboardComponent implements OnInit {
   }
 
   navigateToActivities(): void {
+    if (!this.canAccessPremium) {
+      this.showUpgradeBanner = true;
+      return;
+    }
     this.router.navigate(['/activities']);
   }
 
@@ -206,11 +239,19 @@ export class DashboardComponent implements OnInit {
   }
 
   navigateToProfitLoss(): void {
+    if (!this.canAccessPremium) {
+      this.showUpgradeBanner = true;
+      return;
+    }
     this.router.navigate(['/profit-loss']);
     this.closeMenu();
   }
 
   navigateToBalanceSheet(): void {
+    if (!this.canAccessPremium) {
+      this.showUpgradeBanner = true;
+      return;
+    }
     this.router.navigate(['/balance-sheet']);
     this.closeMenu();
   }

@@ -135,6 +135,36 @@
                 <p class="info-value">Just now</p>
               </div>
             </div>
+
+            <div class="info-card gold">
+              <div class="info-icon">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="20"
+                  height="20"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                >
+                  <polygon
+                    points="12 2 15 8.5 22 9.5 17 14.5 18.5 21.5 12 18 5.5 21.5 7 14.5 2 9.5 9 8.5 12 2"
+                  ></polygon>
+                </svg>
+              </div>
+              <div class="info-text">
+                <p class="info-label">Subscription</p>
+                <p class="info-value">{{ subscriptionTier }} plan</p>
+              </div>
+              @if (subscriptionTier !== 'Premium') {
+                <button
+                  class="upgrade-link"
+                  (click)="onUpgradeClick()"
+                >
+                  Upgrade
+                </button>
+              }
+            </div>
           </div>
         </div>
 
@@ -191,9 +221,13 @@
 
             <button
               class="menu-item"
-              [class.menu-item-restricted]="!canManage"
+              [class.menu-item-restricted]="!canManage || !canAccessPremium"
               [attr.title]="
-                !canManage ? 'Requires Admin or Property Manager role' : null
+                !canAccessPremium
+                  ? 'Requires a Premium subscription'
+                  : !canManage
+                    ? 'Requires Admin or Property Manager role'
+                    : null
               "
               (click)="navigateToActivities()"
             >
@@ -211,7 +245,12 @@
                 <path d="M6 20v-4"></path>
               </svg>
               <div class="menu-item-text">
-                <p class="menu-item-title">Activities</p>
+                <p class="menu-item-title">
+                  Activities
+                  @if (!canAccessPremium) {
+                    <span class="premium-badge">Premium</span>
+                  }
+                </p>
                 <p class="menu-item-desc">Manage events and tasks</p>
               </div>
             </button>
@@ -273,9 +312,13 @@
             <!-- Accounting with Submenu -->
             <div
               class="menu-item-with-submenu"
-              [class.menu-item-restricted]="!canManage"
+              [class.menu-item-restricted]="!canManage || !canAccessPremium"
               [attr.title]="
-                !canManage ? 'Requires Admin or Property Manager role' : null
+                !canAccessPremium
+                  ? 'Requires a Premium subscription'
+                  : !canManage
+                    ? 'Requires Admin or Property Manager role'
+                    : null
               "
             >
               <button class="menu-item" (click)="toggleAccountingSubmenu()">
@@ -292,7 +335,12 @@
                   <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path>
                 </svg>
                 <div class="menu-item-text">
-                  <p class="menu-item-title">Accounting</p>
+                  <p class="menu-item-title">
+                    Accounting
+                    @if (!canAccessPremium) {
+                      <span class="premium-badge">Premium</span>
+                    }
+                  </p>
                   <p class="menu-item-desc">Financial statements & reports</p>
                 </div>
                 <svg
@@ -348,7 +396,14 @@
               </div>
             </div>
 
-            <button class="menu-item" (click)="navigateToSettings()">
+            <button
+              class="menu-item"
+              [class.menu-item-restricted]="!canAccessPremium"
+              [attr.title]="
+                !canAccessPremium ? 'Requires a Premium subscription' : null
+              "
+              (click)="navigateToSettings()"
+            >
               <svg
                 xmlns="http://www.w3.org/2000/svg"
                 width="20"
@@ -364,12 +419,24 @@
                 ></path>
               </svg>
               <div class="menu-item-text">
-                <p class="menu-item-title">Settings</p>
+                <p class="menu-item-title">
+                  Settings
+                  @if (!canAccessPremium) {
+                    <span class="premium-badge">Premium</span>
+                  }
+                </p>
                 <p class="menu-item-desc">Configure your account</p>
               </div>
             </button>
 
-            <button class="menu-item" (click)="navigateToDocumentation()">
+            <button
+              class="menu-item"
+              [class.menu-item-restricted]="!canAccessPremium"
+              [attr.title]="
+                !canAccessPremium ? 'Requires a Premium subscription' : null
+              "
+              (click)="navigateToDocumentation()"
+            >
               <svg
                 xmlns="http://www.w3.org/2000/svg"
                 width="20"
@@ -388,7 +455,12 @@
                 <polyline points="10 9 9 9 8 9"></polyline>
               </svg>
               <div class="menu-item-text">
-                <p class="menu-item-title">Documentation</p>
+                <p class="menu-item-title">
+                  Documentation
+                  @if (!canAccessPremium) {
+                    <span class="premium-badge">Premium</span>
+                  }
+                </p>
                 <p class="menu-item-desc">Browse guides</p>
               </div>
             </button>
@@ -399,6 +471,23 @@
 
     <!-- Main Content -->
     <main class="dashboard-main">
+      @if (showUpgradeBanner) {
+        <div class="upgrade-banner">
+          <p>
+            <strong>Premium feature.</strong> Accounting and Activities are
+            only available to Premium subscribers. Upgrade your plan to
+            unlock them.
+          </p>
+          <button
+            class="upgrade-banner-close"
+            (click)="dismissUpgradeBanner()"
+            aria-label="Dismiss"
+          >
+            &times;
+          </button>
+        </div>
+      }
+
       <section class="welcome-section">
         <div class="welcome-card">
           <div class="welcome-content">
