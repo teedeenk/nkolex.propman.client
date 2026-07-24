@@ -136,7 +136,7 @@
               </div>
             </div>
 
-            <div class="info-card gold">
+            <div class="info-card gold" *ngIf="!isAdmin">
               <div class="info-icon">
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
@@ -414,7 +414,7 @@
                 </svg>
                 <div class="menu-item-text">
                   <p class="menu-item-title">Settings</p>
-                  <p class="menu-item-desc">Configure your account</p>
+                  <p class="menu-item-desc">Manage System</p>
                 </div>
               </button>
             }

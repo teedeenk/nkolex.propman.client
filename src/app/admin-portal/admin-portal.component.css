@@ -96,6 +96,11 @@
   margin-bottom: 2rem;
 }
 
+.form-card:focus {
+  outline: 3px solid #667eea;
+  outline-offset: 4px;
+}
+
 .card-header {
   display: flex;
   justify-content: space-between;
@@ -341,80 +346,59 @@
   font-size: 1rem;
 }
 
-/* User Cards Grid */
-.users-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-  gap: 1.5rem;
-}
-
-.user-card {
+/* User Data Grid */
+.table-wrapper {
   background: white;
   border-radius: 16px;
-  padding: 1.5rem;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
-  transition:
-    transform 0.2s ease,
-    box-shadow 0.2s ease;
+  overflow-x: auto;
 }
 
-.user-card:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 8px 28px rgba(0, 0, 0, 0.2);
+.users-table {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 640px;
 }
 
-.user-card-header {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  margin-bottom: 1rem;
-}
-
-.user-icon {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 48px;
-  height: 48px;
-  border-radius: 12px;
-  background: #ebf4ff;
-  color: #667eea;
-  flex-shrink: 0;
-}
-
-.user-title-group h3 {
-  margin: 0;
-  font-size: 1.1rem;
-  color: #2d3748;
-}
-
-.user-email {
-  font-size: 0.85rem;
-  color: #718096;
-}
-
-.user-stats {
-  display: flex;
-  flex-direction: column;
-  gap: 0.75rem;
-  padding: 1rem 0;
-  border-top: 1px solid #edf2f7;
-  border-bottom: 1px solid #edf2f7;
-  margin-bottom: 1rem;
-}
-
-.stat {
-  display: flex;
-  flex-direction: column;
-  gap: 0.35rem;
-}
-
-.stat-label {
+.users-table th {
+  text-align: left;
   font-size: 0.75rem;
   text-transform: uppercase;
   letter-spacing: 0.05em;
   color: #a0aec0;
   font-weight: 600;
+  padding: 1rem 1.25rem;
+  border-bottom: 2px solid #edf2f7;
+  white-space: nowrap;
+}
+
+.users-table td {
+  padding: 1rem 1.25rem;
+  border-bottom: 1px solid #edf2f7;
+  color: #2d3748;
+  font-size: 0.9rem;
+  vertical-align: middle;
+}
+
+.users-table tbody tr {
+  transition: background-color 0.15s ease;
+}
+
+.users-table tbody tr:hover {
+  background-color: #f7fafc;
+}
+
+.users-table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.users-table tbody tr.row-active {
+  background-color: #ebf4ff;
+}
+
+.actions-cell {
+  text-align: right;
+  white-space: nowrap;
 }
 
 .roles-list {
@@ -430,6 +414,7 @@
   border-radius: 999px;
   font-size: 0.75rem;
   font-weight: 600;
+  white-space: nowrap;
 }
 
 .tier-badge {
@@ -446,11 +431,6 @@
 .tier-badge.tier-premium {
   background: #fefcbf;
   color: #975a16;
-}
-
-.user-card-actions {
-  display: flex;
-  justify-content: flex-end;
 }
 
 .edit-btn {

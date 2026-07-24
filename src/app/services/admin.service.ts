@@ -4,13 +4,28 @@ import { Observable } from 'rxjs';
 import { environment } from '../../environments/environment';
 import { SubscriptionTier } from './auth.service';
 
-export const AVAILABLE_ROLES = ['Admin', 'PropertyManager', 'Tenant'] as const;
+export const AVAILABLE_ROLES = [
+  'Admin',
+  'PropertyManager',
+  'Tenant',
+  'Guest',
+] as const;
 
-export interface AdminUser {
+// Mirrors the backend Account model (see IAccount).
+export interface Account {
   id: string;
-  fullName: string;
+  name: string;
+  surname: string;
+  phoneNumber: string;
   email: string;
+  password: string;
+  agreeToTerms: boolean;
+  createdAt: string;
+  updatedAt: string;
+  deletedAt: string | null;
+  isDeleted: boolean;
   roles: string[];
+  properties: string[] | null;
   subscriptionTier: SubscriptionTier;
 }
 
@@ -22,24 +37,11 @@ export class AdminService {
 
   constructor(private http: HttpClient) {}
 
-  getUsers(): Observable<AdminUser[]> {
-    return this.http.get<AdminUser[]>(`${this.apiUrl}/admin/users`);
+  getAccounts(): Observable<Account[]> {
+    return this.http.get<Account[]>(`${this.apiUrl}/account/`);
   }
 
-  updateUserRoles(userId: string, roles: string[]): Observable<AdminUser> {
-    return this.http.put<AdminUser>(
-      `${this.apiUrl}/admin/users/${userId}/roles`,
-      { roles },
-    );
-  }
-
-  updateUserSubscription(
-    userId: string,
-    subscriptionTier: SubscriptionTier,
-  ): Observable<AdminUser> {
-    return this.http.put<AdminUser>(
-      `${this.apiUrl}/admin/users/${userId}/subscription`,
-      { subscriptionTier },
-    );
+  updateAccount(account: Account): Observable<Account> {
+    return this.http.put<Account>(`${this.apiUrl}/account/update`, account);
   }
 }

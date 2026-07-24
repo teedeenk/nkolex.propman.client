@@ -46,9 +46,9 @@
     </div>
 
     <!-- Edit User Form -->
-    <div class="form-card" *ngIf="editingUser">
+    <div class="form-card" *ngIf="editingAccount" #editCard tabindex="-1">
       <div class="card-header">
-        <h2>Edit {{ editingUser.fullName }}</h2>
+        <h2>Edit {{ fullName(editingAccount) }}</h2>
         <button class="close-btn" (click)="cancelEdit()">
           <svg
             xmlns="http://www.w3.org/2000/svg"
@@ -131,7 +131,6 @@
             type="button"
             class="cancel-btn"
             (click)="cancelEdit()"
-            [disabled]="isSaving"
           >
             Cancel
           </button>
@@ -162,7 +161,7 @@
     <!-- Empty State -->
     <div
       class="empty-state"
-      *ngIf="!isLoading && !loadError && filteredUsers.length === 0"
+      *ngIf="!isLoading && !loadError && filteredAccounts.length === 0"
     >
       <svg
         xmlns="http://www.w3.org/2000/svg"
@@ -180,75 +179,67 @@
       <p>{{ searchQuery ? "Try adjusting your search." : "No users yet." }}</p>
     </div>
 
-    <!-- User Cards -->
+    <!-- User Data Grid -->
     <div
-      class="users-grid"
-      *ngIf="!isLoading && !loadError && filteredUsers.length > 0"
+      class="table-wrapper"
+      *ngIf="!isLoading && !loadError && filteredAccounts.length > 0"
     >
-      <div class="user-card" *ngFor="let user of filteredUsers">
-        <div class="user-card-header">
-          <div class="user-icon">
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              width="28"
-              height="28"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="2"
-            >
-              <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
-              <circle cx="12" cy="7" r="4"></circle>
-            </svg>
-          </div>
-          <div class="user-title-group">
-            <h3>{{ user.fullName }}</h3>
-            <span class="user-email">{{ user.email }}</span>
-          </div>
-        </div>
-
-        <div class="user-stats">
-          <div class="stat">
-            <span class="stat-label">Roles</span>
-            <span class="stat-value roles-list">
-              <span class="role-badge" *ngFor="let role of user.roles">{{
-                role
-              }}</span>
-            </span>
-          </div>
-          <div class="stat">
-            <span class="stat-label">Subscription</span>
-            <span
-              class="stat-value tier-badge"
-              [class.tier-premium]="user.subscriptionTier === 'Premium'"
-            >
-              {{ user.subscriptionTier }}
-            </span>
-          </div>
-        </div>
-
-        <div class="user-card-actions">
-          <button class="edit-btn" (click)="startEdit(user)">
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              width="16"
-              height="16"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="2"
-            >
-              <path
-                d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"
-              ></path>
-              <path
-                d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"
-              ></path>
-            </svg>
-            Manage
-          </button>
-        </div>
-      </div>
+      <table class="users-table">
+        <thead>
+          <tr>
+            <th>Name</th>
+            <th>Email</th>
+            <th>Roles</th>
+            <th>Subscription</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr
+            *ngFor="let account of filteredAccounts"
+            [class.row-active]="editingAccount?.id === account.id"
+          >
+            <td>{{ fullName(account) }}</td>
+            <td>{{ account.email }}</td>
+            <td>
+              <span class="roles-list">
+                <span class="role-badge" *ngFor="let role of account.roles">{{
+                  role
+                }}</span>
+              </span>
+            </td>
+            <td>
+              <span
+                class="tier-badge"
+                [class.tier-premium]="account.subscriptionTier === 'Premium'"
+              >
+                {{ account.subscriptionTier }}
+              </span>
+            </td>
+            <td class="actions-cell">
+              <button class="edit-btn" (click)="startEdit(account)">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="16"
+                  height="16"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                >
+                  <path
+                    d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"
+                  ></path>
+                  <path
+                    d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"
+                  ></path>
+                </svg>
+                Manage
+              </button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
     </div>
   </div>
 </div>
