@@ -96,13 +96,14 @@ export class AuthService {
     return roles.includes('admin') || roles.includes('propertymanager');
   }
 
-  /**
-   * Feature gate for premium-only areas of the app (e.g. Accounting, Activities).
-   * Admins always have access; everyone else needs an active Premium subscription.
-   */
   hasPremiumAccess(): boolean {
     const roles = this.getRoles().map((r) => r.toLowerCase());
     return roles.includes('admin') || this.getSubscriptionTier() === 'Premium';
+  }
+
+  isAdmin(): boolean {
+    const roles = this.getRoles().map((r) => r.toLowerCase());
+    return roles.includes('admin');
   }
 
   private setToken(token: string): void {

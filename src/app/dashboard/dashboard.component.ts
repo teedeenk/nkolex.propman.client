@@ -21,8 +21,10 @@ export class DashboardComponent implements OnInit {
   fullName: string | null = null;
   canManage: boolean = false;
   canAccessPremium: boolean = false;
+  isAdmin: boolean = false;
   subscriptionTier: SubscriptionTier = 'Free';
   showUpgradeBanner: boolean = false;
+  showAdminRequiredBanner: boolean = false;
   isMenuOpen: boolean = false;
   isAccountingSubmenuOpen: boolean = false;
   isLoadingFinancialData: boolean = true;
@@ -48,6 +50,8 @@ export class DashboardComponent implements OnInit {
   ngOnInit(): void {
     this.showUpgradeBanner =
       this.route.snapshot.queryParamMap.get('upgradeRequired') === 'true';
+    this.showAdminRequiredBanner =
+      this.route.snapshot.queryParamMap.get('adminRequired') === 'true';
 
     this.authService.currentUser$.subscribe({
       next: (fullName) => {
@@ -55,6 +59,7 @@ export class DashboardComponent implements OnInit {
           this.fullName = fullName;
           this.canManage = this.authService.hasManagerAccess();
           this.canAccessPremium = this.authService.hasPremiumAccess();
+          this.isAdmin = this.authService.isAdmin();
           this.subscriptionTier = this.authService.getSubscriptionTier();
           this.isLoading = false;
           this.loadFinancialData();
@@ -63,6 +68,7 @@ export class DashboardComponent implements OnInit {
             next: () => {
               this.canManage = this.authService.hasManagerAccess();
               this.canAccessPremium = this.authService.hasPremiumAccess();
+              this.isAdmin = this.authService.isAdmin();
               this.subscriptionTier = this.authService.getSubscriptionTier();
             },
           });
@@ -81,6 +87,10 @@ export class DashboardComponent implements OnInit {
 
   dismissUpgradeBanner(): void {
     this.showUpgradeBanner = false;
+  }
+
+  dismissAdminRequiredBanner(): void {
+    this.showAdminRequiredBanner = false;
   }
 
   private loadActivities(): void {
@@ -191,12 +201,12 @@ export class DashboardComponent implements OnInit {
   }
 
   navigateToSettings(): void {
-    if (!this.canAccessPremium) {
-      this.showUpgradeBanner = true;
+    if (!this.isAdmin) {
+      this.showAdminRequiredBanner = true;
       return;
     }
-    console.log('Navigate to settings');
     this.closeMenu();
+    this.router.navigate(['/admin']);
   }
 
   navigateToDocumentation(): void {
@@ -208,7 +218,6 @@ export class DashboardComponent implements OnInit {
     this.closeMenu();
   }
 
-  /** Always accessible, regardless of plan, so users can upgrade from the banner/card. */
   onUpgradeClick(): void {
     console.log('Navigate to upgrade/billing');
     this.closeMenu();

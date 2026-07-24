@@ -1,0 +1,254 @@
+<div class="admin-container">
+  <div class="admin-content">
+    <!-- Header -->
+    <header class="admin-header">
+      <button class="back-btn" (click)="goBack()">
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="20"
+          height="20"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+        >
+          <line x1="19" y1="12" x2="5" y2="12"></line>
+          <polyline points="12 19 5 12 12 5"></polyline>
+        </svg>
+        Back to Dashboard
+      </button>
+      <h1>Admin Portal</h1>
+      <p class="subtitle">Manage user rights and subscriptions</p>
+    </header>
+
+    <!-- Controls -->
+    <div class="controls-section">
+      <div class="search-box">
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="20"
+          height="20"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+        >
+          <circle cx="11" cy="11" r="8"></circle>
+          <path d="m21 21-4.35-4.35"></path>
+        </svg>
+        <input
+          type="text"
+          placeholder="Search users by name or email..."
+          [(ngModel)]="searchQuery"
+          (input)="onSearchChange()"
+        />
+      </div>
+    </div>
+
+    <!-- Edit User Form -->
+    <div class="form-card" *ngIf="editingUser">
+      <div class="card-header">
+        <h2>Edit {{ editingUser.fullName }}</h2>
+        <button class="close-btn" (click)="cancelEdit()">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="20"
+            height="20"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+          >
+            <line x1="18" y1="6" x2="6" y2="18"></line>
+            <line x1="6" y1="6" x2="18" y2="18"></line>
+          </svg>
+        </button>
+      </div>
+
+      <div class="success-message" *ngIf="saveSuccess">
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="24"
+          height="24"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+        >
+          <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+          <polyline points="22 4 12 14.01 9 11.01"></polyline>
+        </svg>
+        User updated successfully!
+      </div>
+
+      <div class="error-message" *ngIf="saveError">
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="20"
+          height="20"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+        >
+          <circle cx="12" cy="12" r="10"></circle>
+          <line x1="12" y1="8" x2="12" y2="12"></line>
+          <line x1="12" y1="16" x2="12.01" y2="16"></line>
+        </svg>
+        {{ saveError }}
+      </div>
+
+      <form class="admin-form" *ngIf="!saveSuccess">
+        <div class="form-group full-width">
+          <label>User Rights</label>
+          <div class="role-options">
+            <label class="role-option" *ngFor="let role of availableRoles">
+              <input
+                type="checkbox"
+                [checked]="isRoleSelected(role)"
+                (change)="toggleRole(role)"
+              />
+              {{ role }}
+            </label>
+          </div>
+        </div>
+
+        <div class="form-group full-width">
+          <label for="subscriptionTier">Subscription</label>
+          <select
+            id="subscriptionTier"
+            [(ngModel)]="editingSubscriptionTier"
+            name="subscriptionTier"
+          >
+            <option *ngFor="let tier of subscriptionTiers" [value]="tier">
+              {{ tier }}
+            </option>
+          </select>
+        </div>
+
+        <div class="form-actions">
+          <button
+            type="button"
+            class="cancel-btn"
+            (click)="cancelEdit()"
+            [disabled]="isSaving"
+          >
+            Cancel
+          </button>
+          <button
+            type="button"
+            class="save-btn"
+            (click)="onSubmitEdit()"
+            [disabled]="isSaving"
+          >
+            <div class="spinner-small" *ngIf="isSaving"></div>
+            {{ isSaving ? "Saving..." : "Save Changes" }}
+          </button>
+        </div>
+      </form>
+    </div>
+
+    <!-- Loading -->
+    <div class="loading-state" *ngIf="isLoading">
+      <div class="spinner"></div>
+      <p>Loading users...</p>
+    </div>
+
+    <!-- Load Error -->
+    <div class="error-message" *ngIf="!isLoading && loadError">
+      {{ loadError }}
+    </div>
+
+    <!-- Empty State -->
+    <div
+      class="empty-state"
+      *ngIf="!isLoading && !loadError && filteredUsers.length === 0"
+    >
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        width="64"
+        height="64"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="1.5"
+      >
+        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+        <circle cx="12" cy="7" r="4"></circle>
+      </svg>
+      <h3>No users found</h3>
+      <p>{{ searchQuery ? "Try adjusting your search." : "No users yet." }}</p>
+    </div>
+
+    <!-- User Cards -->
+    <div
+      class="users-grid"
+      *ngIf="!isLoading && !loadError && filteredUsers.length > 0"
+    >
+      <div class="user-card" *ngFor="let user of filteredUsers">
+        <div class="user-card-header">
+          <div class="user-icon">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="28"
+              height="28"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+            >
+              <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+              <circle cx="12" cy="7" r="4"></circle>
+            </svg>
+          </div>
+          <div class="user-title-group">
+            <h3>{{ user.fullName }}</h3>
+            <span class="user-email">{{ user.email }}</span>
+          </div>
+        </div>
+
+        <div class="user-stats">
+          <div class="stat">
+            <span class="stat-label">Roles</span>
+            <span class="stat-value roles-list">
+              <span class="role-badge" *ngFor="let role of user.roles">{{
+                role
+              }}</span>
+            </span>
+          </div>
+          <div class="stat">
+            <span class="stat-label">Subscription</span>
+            <span
+              class="stat-value tier-badge"
+              [class.tier-premium]="user.subscriptionTier === 'Premium'"
+            >
+              {{ user.subscriptionTier }}
+            </span>
+          </div>
+        </div>
+
+        <div class="user-card-actions">
+          <button class="edit-btn" (click)="startEdit(user)">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="16"
+              height="16"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+            >
+              <path
+                d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"
+              ></path>
+              <path
+                d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"
+              ></path>
+            </svg>
+            Manage
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

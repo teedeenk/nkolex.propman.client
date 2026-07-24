@@ -10,7 +10,8 @@ import { FinancialStatementsComponent } from './financial-statements/financial-s
 import { ProfitLossComponent } from './profit-loss/profit-loss.component';
 import { BalanceSheetComponent } from './balance-sheet/balance-sheet.component';
 import { PropertiesComponent } from './properties/properties.component';
-import { authGuard, guestGuard, premiumGuard } from './guards/auth.gurard';
+import { AdminPortalComponent } from './admin-portal/admin-portal.component';
+import { authGuard, guestGuard, premiumGuard, adminGuard } from './guards/auth.gurard';
 
 export const routes: Routes = [
   { path: 'register', component: RegisterComponent, canActivate: [guestGuard] },
@@ -24,6 +25,7 @@ export const routes: Routes = [
   { path: 'profit-loss', component: ProfitLossComponent, canActivate: [authGuard, premiumGuard] },
   { path: 'balance-sheet', component: BalanceSheetComponent, canActivate: [authGuard, premiumGuard] },
   { path: 'properties', component: PropertiesComponent, canActivate: [authGuard] },
+  { path: 'admin', component: AdminPortalComponent, canActivate: [authGuard, adminGuard] },
   { path: '', pathMatch: 'full', redirectTo: '' }, // stays on AppComponent (landing page)
   { path: '**', redirectTo: '' }, // redirect unknown routes to landing page
 ];

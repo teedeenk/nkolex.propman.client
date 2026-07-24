@@ -26,11 +26,6 @@ export const guestGuard: CanActivateFn = (route, state) => {
   return false;
 };
 
-/**
- * Restricts a route to premium (or admin) users. Logged-in users without
- * premium access are redirected back to the dashboard with an
- * `upgradeRequired` flag so it can surface an upsell message.
- */
 export const premiumGuard: CanActivateFn = (route, state) => {
   const authService = inject(AuthService);
   const router = inject(Router);
@@ -45,5 +40,22 @@ export const premiumGuard: CanActivateFn = (route, state) => {
   }
 
   router.navigate(['/dashboard'], { queryParams: { upgradeRequired: 'true' } });
+  return false;
+};
+
+export const adminGuard: CanActivateFn = (route, state) => {
+  const authService = inject(AuthService);
+  const router = inject(Router);
+
+  if (!authService.isLoggedIn()) {
+    router.navigate(['/login'], { queryParams: { returnUrl: state.url } });
+    return false;
+  }
+
+  if (authService.isAdmin()) {
+    return true;
+  }
+
+  router.navigate(['/dashboard'], { queryParams: { adminRequired: 'true' } });
   return false;
 };
