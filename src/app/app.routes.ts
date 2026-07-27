@@ -11,6 +11,7 @@ import { ProfitLossComponent } from './profit-loss/profit-loss.component';
 import { BalanceSheetComponent } from './balance-sheet/balance-sheet.component';
 import { PropertiesComponent } from './properties/properties.component';
 import { AdminPortalComponent } from './admin-portal/admin-portal.component';
+import { UpgradeComponent } from './upgrade/upgrade.component';
 import { authGuard, guestGuard, premiumGuard, adminGuard } from './guards/auth.gurard';
 
 export const routes: Routes = [
@@ -26,6 +27,7 @@ export const routes: Routes = [
   { path: 'balance-sheet', component: BalanceSheetComponent, canActivate: [authGuard, premiumGuard] },
   { path: 'properties', component: PropertiesComponent, canActivate: [authGuard] },
   { path: 'admin', component: AdminPortalComponent, canActivate: [authGuard, adminGuard] },
+  { path: 'upgrade', component: UpgradeComponent, canActivate: [authGuard] },
   { path: '', pathMatch: 'full', redirectTo: '' }, // stays on AppComponent (landing page)
   { path: '**', redirectTo: '' }, // redirect unknown routes to landing page
 ];

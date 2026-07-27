@@ -219,8 +219,8 @@ export class DashboardComponent implements OnInit {
   }
 
   onUpgradeClick(): void {
-    console.log('Navigate to upgrade/billing');
     this.closeMenu();
+    this.router.navigate(['/upgrade']);
   }
 
   navigateToUpload(): void {

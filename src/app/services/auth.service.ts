@@ -87,6 +87,10 @@ export class AuthService {
     return localStorage.getItem('user_id') ?? '';
   }
 
+  getEmail(): string {
+    return this.getStoredEmail() ?? '';
+  }
+
   getSubscriptionTier(): SubscriptionTier {
     return this.getStoredSubscriptionTier();
   }

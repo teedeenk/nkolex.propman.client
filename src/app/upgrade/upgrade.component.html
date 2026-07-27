@@ -1,0 +1,217 @@
+<div class="upgrade-container">
+  <div class="upgrade-content">
+    <!-- Header -->
+    <header class="upgrade-header">
+      <button class="back-btn" (click)="goBack()" aria-label="Go back">
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="20"
+          height="20"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+        >
+          <line x1="19" y1="12" x2="5" y2="12"></line>
+          <polyline points="12 19 5 12 12 5"></polyline>
+        </svg>
+        Back to Dashboard
+      </button>
+      <h1>Upgrade to Premium</h1>
+      <p class="subtitle">
+        Unlock Accounting, Activities and Financial Statements
+      </p>
+    </header>
+
+    <!-- Under Construction Notice -->
+    <div class="notice-card">
+      <svg
+        class="notice-icon"
+        xmlns="http://www.w3.org/2000/svg"
+        width="28"
+        height="28"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2"
+      >
+        <path
+          d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"
+        ></path>
+        <line x1="12" y1="9" x2="12" y2="13"></line>
+        <line x1="12" y1="17" x2="12.01" y2="17"></line>
+      </svg>
+      <div>
+        <h3>Online payments are currently under construction</h3>
+        <p>
+          Our card payment gateway isn't ready yet. In the meantime, you can
+          upgrade your account via EFT, using the details below.
+        </p>
+      </div>
+    </div>
+
+    <!-- EFT Payment Card -->
+    <div class="option-card">
+      <h2>Pay via EFT</h2>
+      <p class="option-description">
+        Make an EFT payment using your bank's online banking app, then email
+        proof of payment to
+        <a href="mailto:accounts&#64;nkolex.co.za">accounts&#64;nkolex.co.za</a> and
+        we'll activate your Premium plan.
+      </p>
+
+      <dl class="bank-details">
+        <div class="detail-row">
+          <dt>Bank</dt>
+          <dd>
+            {{ bankName }}
+            <button
+              class="copy-btn"
+              (click)="copyToClipboard(bankName, 'bank')"
+              aria-label="Copy bank name"
+            >
+              {{ copiedField === 'bank' ? 'Copied!' : 'Copy' }}
+            </button>
+          </dd>
+        </div>
+        <div class="detail-row">
+          <dt>Account Name</dt>
+          <dd>
+            {{ accountName }}
+            <button
+              class="copy-btn"
+              (click)="copyToClipboard(accountName, 'accountName')"
+              aria-label="Copy account name"
+            >
+              {{ copiedField === 'accountName' ? 'Copied!' : 'Copy' }}
+            </button>
+          </dd>
+        </div>
+        <div class="detail-row">
+          <dt>Account Number</dt>
+          <dd>
+            {{ accountNumber }}
+            <button
+              class="copy-btn"
+              (click)="copyToClipboard(accountNumber, 'accountNumber')"
+              aria-label="Copy account number"
+            >
+              {{ copiedField === 'accountNumber' ? 'Copied!' : 'Copy' }}
+            </button>
+          </dd>
+        </div>
+        <div class="detail-row">
+          <dt>Branch Code</dt>
+          <dd>
+            {{ branchCode }}
+            <button
+              class="copy-btn"
+              (click)="copyToClipboard(branchCode, 'branchCode')"
+              aria-label="Copy branch code"
+            >
+              {{ copiedField === 'branchCode' ? 'Copied!' : 'Copy' }}
+            </button>
+          </dd>
+        </div>
+        <div class="detail-row">
+          <dt>Reference</dt>
+          <dd>
+            {{ upgradeReference }}
+            <button
+              class="copy-btn"
+              (click)="copyToClipboard(upgradeReference, 'upgradeReference')"
+              aria-label="Copy reference"
+            >
+              {{ copiedField === 'upgradeReference' ? 'Copied!' : 'Copy' }}
+            </button>
+          </dd>
+        </div>
+      </dl>
+    </div>
+
+    <!-- Donate Card -->
+    <div class="option-card donate-card">
+      <h2>Support Us</h2>
+      <p class="option-description">
+        If you'd like to support Nkolex's development of this product with a donation,
+        we'd really appreciate it.
+      </p>
+
+      <button class="donate-btn" (click)="toggleDonateDetails()">
+        {{ showDonateDetails ? 'Hide Donation Details' : 'Donate' }}
+      </button>
+
+      @if (showDonateDetails) {
+        <dl class="bank-details">
+          <div class="detail-row">
+            <dt>Bank</dt>
+            <dd>
+              {{ bankName }}
+              <button
+                class="copy-btn"
+                (click)="copyToClipboard(bankName, 'donateBank')"
+                aria-label="Copy bank name"
+              >
+                {{ copiedField === 'donateBank' ? 'Copied!' : 'Copy' }}
+              </button>
+            </dd>
+          </div>
+          <div class="detail-row">
+            <dt>Account Name</dt>
+            <dd>
+              {{ accountName }}
+              <button
+                class="copy-btn"
+                (click)="copyToClipboard(accountName, 'donateAccountName')"
+                aria-label="Copy account name"
+              >
+                {{ copiedField === 'donateAccountName' ? 'Copied!' : 'Copy' }}
+              </button>
+            </dd>
+          </div>
+          <div class="detail-row">
+            <dt>Account Number</dt>
+            <dd>
+              {{ accountNumber }}
+              <button
+                class="copy-btn"
+                (click)="copyToClipboard(accountNumber, 'donateAccountNumber')"
+                aria-label="Copy account number"
+              >
+                {{
+                  copiedField === 'donateAccountNumber' ? 'Copied!' : 'Copy'
+                }}
+              </button>
+            </dd>
+          </div>
+          <div class="detail-row">
+            <dt>Branch Code</dt>
+            <dd>
+              {{ branchCode }}
+              <button
+                class="copy-btn"
+                (click)="copyToClipboard(branchCode, 'donateBranchCode')"
+                aria-label="Copy branch code"
+              >
+                {{ copiedField === 'donateBranchCode' ? 'Copied!' : 'Copy' }}
+              </button>
+            </dd>
+          </div>
+          <div class="detail-row">
+            <dt>Reference</dt>
+            <dd>
+              {{ donateReference }}
+              <button
+                class="copy-btn"
+                (click)="copyToClipboard(donateReference, 'donateReference')"
+                aria-label="Copy reference"
+              >
+                {{ copiedField === 'donateReference' ? 'Copied!' : 'Copy' }}
+              </button>
+            </dd>
+          </div>
+        </dl>
+      }
+    </div>
+  </div>
+</div>
