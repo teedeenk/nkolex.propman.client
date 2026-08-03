@@ -82,12 +82,32 @@
 
   main.landing-centered {
     align-items: center;
-    min-height: 100vh;
+    flex: 1;
   }
 
   main.forms-top-aligned {
     align-items: flex-start;
     padding-top: 2rem;
+  }
+
+  .app-shell {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+  }
+
+  .page-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* the routed component's root element is rendered as the next sibling of <router-outlet> */
+  .page-content > router-outlet + * {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
   }
 
   .angular-logo {
@@ -201,6 +221,7 @@
     border-top: 1px solid var(--gray-400);
     font-size: 0.8rem;
     color: var(--gray-400);
+    flex-shrink: 0;
   }
   .site-footer a {
     color: var(--gray-400);
@@ -208,6 +229,8 @@
   }
 </style>
 
+<div class="app-shell">
+<div class="page-content">
 @if (showLandingContent) {
   <main class="main landing-centered">
     <div class="content">
@@ -293,9 +316,11 @@
   </main>
 }
 <router-outlet />
+</div>
 <footer class="site-footer">
   <a href="https://nkolex.co.za">Nkolex</a> - © 2026 | All rights reserved |
   <a routerLink="/terms">Terms and Conditions</a> |
   <a routerLink="/disclaimer">Disclaimer</a> |
   <a routerLink="/privacy-policy">Privacy Policy</a>
 </footer>
+</div>
