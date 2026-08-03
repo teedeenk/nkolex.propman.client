@@ -193,6 +193,19 @@
       margin-block: 1.5rem;
     }
   }
+
+  .site-footer {
+    text-align: center;
+    padding: 1rem;
+    margin-top: 1rem;
+    border-top: 1px solid var(--gray-400);
+    font-size: 0.8rem;
+    color: var(--gray-400);
+  }
+  .site-footer a {
+    color: var(--gray-400);
+    text-decoration: none;
+  }
 </style>
 
 <main
@@ -285,3 +298,8 @@
   }
 </main>
 <router-outlet />
+<footer class="site-footer">
+  <a href="https://nkolex.co.za">Nkolex</a> - © 2026 | All rights reserved |
+  <a routerLink="/terms">Terms and Conditions</a> |
+  <a routerLink="/disclaimer">Disclaimer</a>
+</footer>
