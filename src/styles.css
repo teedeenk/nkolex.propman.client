@@ -1,5 +1,15 @@
 @import "./styles/forms.css";
 
+/* routed components are inserted as router-outlet's next sibling; this can't live in
+   app.component's encapsulated styles since Angular doesn't tag that element with
+   the parent's _ngcontent attribute */
+.page-content > router-outlet + * {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+
 button {
   background: linear-gradient(90deg, #ff6a00, #ee0979);
   color: white;
