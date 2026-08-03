@@ -14,6 +14,7 @@ import { AdminPortalComponent } from './admin-portal/admin-portal.component';
 import { UpgradeComponent } from './upgrade/upgrade.component';
 import { DisclaimerComponent } from './disclaimer/disclaimer.component';
 import { TermsComponent } from './terms/terms.component';
+import { PrivacyPolicyComponent } from './privacy-policy/privacy-policy.component';
 import { authGuard, guestGuard, premiumGuard, adminGuard } from './guards/auth.gurard';
 
 export const routes: Routes = [
@@ -32,6 +33,7 @@ export const routes: Routes = [
   { path: 'upgrade', component: UpgradeComponent, canActivate: [authGuard] },
   { path: 'disclaimer', component: DisclaimerComponent },
   { path: 'terms', component: TermsComponent },
-  { path: '', pathMatch: 'full', redirectTo: '' }, // stays on AppComponent (landing page)
-  { path: '**', redirectTo: '' }, // redirect unknown routes to landing page
+  { path: 'privacy-policy', component: PrivacyPolicyComponent },
+  { path: '', pathMatch: 'full', redirectTo: '' },
+  { path: '**', redirectTo: '' }, 
 ];
