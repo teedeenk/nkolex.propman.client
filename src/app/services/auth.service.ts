@@ -48,6 +48,12 @@ export class AuthService {
       );
   }
 
+  confirmEmail(email: string, token: string): Observable<void> {
+    return this.http.get<void>(`${this.apiUrl}/account/confirm-email`, {
+      params: { email, token },
+    });
+  }
+
   loadProfile(): Observable<ProfileResponse> {
     return this.http.get<ProfileResponse>(`${this.apiUrl}/auth/profile`).pipe(
       tap((profile) => {

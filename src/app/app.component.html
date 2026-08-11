@@ -223,6 +223,27 @@
 
 <div class="app-shell">
 <div class="page-content">
+@if (emailVerificationStatus !== 'idle') {
+  <main class="main landing-centered">
+    <div class="content">
+      <div class="left-side">
+        @if (emailVerificationStatus === 'loading') {
+          <p>Verifying your email…</p>
+        }
+        @if (emailVerificationStatus === 'success') {
+          <h1>Email Verified</h1>
+          <p>{{ emailVerificationMessage }}</p>
+          <button (click)="onSignIn()">Go to Login</button>
+        }
+        @if (emailVerificationStatus === 'error') {
+          <h1>Verification Failed</h1>
+          <p>{{ emailVerificationMessage }}</p>
+          <button (click)="onSignIn()">Go to Login</button>
+        }
+      </div>
+    </div>
+  </main>
+}
 @if (showLandingContent) {
   <main class="main landing-centered">
     <div class="content">

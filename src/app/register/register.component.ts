@@ -33,6 +33,8 @@ export class RegisterComponent {
   showConfirmPassword = false;
   isLoading = false;
   errorMessage = '';
+  registrationComplete = false;
+  registeredEmail = '';
 
   formData: CreateAccountRequest = {
     name: '',
@@ -71,13 +73,12 @@ export class RegisterComponent {
       return;
     }
 
-    console.log('Form submitted:', this.formData);
     this.isLoading = true;
-    this.http.post(this.apiUrl, this.formData).subscribe({
-      next: (response) => {
+    this.http.post<CreateAccountResponse>(this.apiUrl, this.formData).subscribe({
+      next: () => {
         this.isLoading = false;
-        alert('Account created successfully!');
-        this.router.navigate(['/login']);
+        this.registeredEmail = this.formData.email;
+        this.registrationComplete = true;
       },
       error: (error) => {
         this.isLoading = false;
@@ -85,6 +86,10 @@ export class RegisterComponent {
         console.error(error);
       },
     });
+  }
+
+  goToLogin() {
+    this.router.navigate(['/login']);
   }
 
   private validateForm(): boolean {
