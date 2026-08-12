@@ -75,14 +75,18 @@ export class RegisterComponent {
 
     this.isLoading = true;
     this.http.post<CreateAccountResponse>(this.apiUrl, this.formData).subscribe({
-      next: () => {
+      next: (response) => {
         this.isLoading = false;
         this.registeredEmail = this.formData.email;
         this.registrationComplete = true;
       },
       error: (error) => {
         this.isLoading = false;
-        this.errorMessage = 'An error occurred while creating the account.';
+        if (error.status === 409) {
+          this.errorMessage = error.error?.message || 'An account with this email already exists.';
+        } else {
+          this.errorMessage = 'An error occurred while creating the account.';
+        }
         console.error(error);
       },
     });
