@@ -44,18 +44,17 @@ export class AppComponent implements OnInit {
     });
 
     this.route.queryParamMap.subscribe((params) => {
-      const email = params.get('email');
       const token = params.get('token');
-      if (email && token) {
-        this.confirmEmail(email, token);
+      if (token) {
+        this.confirmEmail(token);
       }
     });
   }
 
-  private confirmEmail(email: string, token: string): void {
+  private confirmEmail(token: string): void {
     this.showLandingContent = false;
     this.emailVerificationStatus = 'loading';
-    this.authService.confirmEmail(email, token).subscribe({
+    this.authService.confirmEmail(token).subscribe({
       next: () => {
         this.emailVerificationStatus = 'success';
         this.emailVerificationMessage = 'Your email has been verified. You can now log in.';

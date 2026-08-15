@@ -48,9 +48,9 @@ export class AuthService {
       );
   }
 
-  confirmEmail(email: string, token: string): Observable<void> {
+  confirmEmail(token: string): Observable<void> {
     return this.http.get<void>(`${this.apiUrl}/account/confirm-email`, {
-      params: { email, token },
+      params: { token },
     });
   }
 
