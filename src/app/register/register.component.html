@@ -10,6 +10,26 @@
       </p>
     </div>
 
+    @if (resendMessage) {
+    <div class="success-message">{{ resendMessage }}</div>
+    }
+    @if (resendErrorMessage) {
+    <div class="error-banner">{{ resendErrorMessage }}</div>
+    }
+
+    <button
+      type="button"
+      class="submit-button"
+      (click)="resendConfirmationEmail()"
+      [disabled]="resendLoading"
+    >
+      @if (resendLoading) {
+      <span>Sending...</span>
+      } @else {
+      <span>Resend Verification Email</span>
+      }
+    </button>
+
     <button type="button" class="submit-button" (click)="goToLogin()">
       Go to Login
     </button>

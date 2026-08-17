@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
 import { Router, RouterLink } from '@angular/router';
 import { environment } from '../../environments/environment';
+import { AuthService } from '../services/auth.service';
 
 interface CreateAccountRequest {
   name: string;
@@ -35,6 +36,9 @@ export class RegisterComponent {
   errorMessage = '';
   registrationComplete = false;
   registeredEmail = '';
+  resendLoading = false;
+  resendMessage = '';
+  resendErrorMessage = '';
 
   formData: CreateAccountRequest = {
     name: '',
@@ -51,7 +55,8 @@ export class RegisterComponent {
   constructor(
     private location: Location,
     private http: HttpClient,
-    private router: Router
+    private router: Router,
+    private authService: AuthService,
   ) {}
 
   togglePassword() {
@@ -94,6 +99,29 @@ export class RegisterComponent {
 
   goToLogin() {
     this.router.navigate(['/login']);
+  }
+
+  resendConfirmationEmail(): void {
+    if (this.resendLoading || !this.registeredEmail) {
+      return;
+    }
+
+    this.resendLoading = true;
+    this.resendMessage = '';
+    this.resendErrorMessage = '';
+
+    this.authService.resendConfirmationEmail(this.registeredEmail).subscribe({
+      next: () => {
+        this.resendLoading = false;
+        this.resendMessage = 'A new verification link has been sent.';
+      },
+      error: (error) => {
+        this.resendLoading = false;
+        this.resendErrorMessage =
+          error.error?.message || 'Unable to resend the verification link. Please try again.';
+        console.error(error);
+      },
+    });
   }
 
   private validateForm(): boolean {

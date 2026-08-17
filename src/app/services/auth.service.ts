@@ -54,6 +54,12 @@ export class AuthService {
     });
   }
 
+  resendConfirmationEmail(email: string): Observable<void> {
+    return this.http.post<void>(`${this.apiUrl}/account/resend-confirmation-email`, {
+      email,
+    });
+  }
+
   loadProfile(): Observable<ProfileResponse> {
     return this.http.get<ProfileResponse>(`${this.apiUrl}/auth/profile`).pipe(
       tap((profile) => {
