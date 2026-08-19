@@ -60,6 +60,14 @@ export class AuthService {
     });
   }
 
+  resetPassword(token: string, newPassword: string, confirmPassword: string): Observable<void> {
+    return this.http.post<void>(`${this.apiUrl}/account/reset-password`, {
+      token,
+      newPassword,
+      confirmPassword,
+    });
+  }
+
   loadProfile(): Observable<ProfileResponse> {
     return this.http.get<ProfileResponse>(`${this.apiUrl}/auth/profile`).pipe(
       tap((profile) => {
