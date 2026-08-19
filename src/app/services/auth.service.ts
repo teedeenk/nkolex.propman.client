@@ -60,6 +60,12 @@ export class AuthService {
     });
   }
 
+  requestPasswordReset(email: string): Observable<void> {
+    return this.http.post<void>(`${this.apiUrl}/account/forgot-password`, {
+      email,
+    });
+  }
+
   resetPassword(token: string, newPassword: string, confirmPassword: string): Observable<void> {
     return this.http.post<void>(`${this.apiUrl}/account/reset-password`, {
       token,

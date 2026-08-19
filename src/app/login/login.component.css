@@ -6,3 +6,19 @@
   margin-bottom: 15px;
   border: 1px solid #fcc;
 }
+
+.forgot-password-link {
+  text-align: right;
+  margin-top: -8px;
+  margin-bottom: 16px;
+}
+
+.forgot-password-link a {
+  color: #4285f4;
+  text-decoration: none;
+  font-size: 0.9rem;
+}
+
+.forgot-password-link a:hover {
+  text-decoration: underline;
+}
