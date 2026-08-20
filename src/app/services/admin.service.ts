@@ -44,4 +44,8 @@ export class AdminService {
   updateAccount(account: Account): Observable<Account> {
     return this.http.put<Account>(`${this.apiUrl}/account/update`, account);
   }
+
+  deleteAccount(account: Account): Observable<Account> {
+    return this.http.delete<Account>(`${this.apiUrl}/account/delete`, { body: account });
+  }
 }

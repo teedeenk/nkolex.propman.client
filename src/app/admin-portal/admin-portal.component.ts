@@ -36,6 +36,12 @@ export class AdminPortalComponent implements OnInit {
   saveError: string | null = null;
   saveSuccess: boolean = false;
 
+  deletingAccountId: string | null = null;
+  isDeleting: boolean = false;
+  deleteError: string | null = null;
+  showDeleteConfirm: boolean = false;
+  accountToDelete: Account | null = null;
+
   constructor(
     private router: Router,
     private adminService: AdminService,
@@ -157,6 +163,55 @@ export class AdminPortalComponent implements OnInit {
             err?.name === 'TimeoutError'
               ? 'The request timed out. Please try again.'
               : 'Failed to update user. Please try again.';
+        },
+      });
+  }
+
+  confirmDelete(account: Account): void {
+    this.accountToDelete = account;
+    this.showDeleteConfirm = true;
+    this.deleteError = null;
+  }
+
+  cancelDelete(): void {
+    this.showDeleteConfirm = false;
+    this.accountToDelete = null;
+    this.deleteError = null;
+  }
+
+  deleteUser(): void {
+    if (!this.accountToDelete) return;
+
+    this.isDeleting = true;
+    this.deleteError = null;
+    this.deletingAccountId = this.accountToDelete.id;
+
+    this.adminService
+      .deleteAccount(this.accountToDelete)
+      .pipe(
+        timeout(REQUEST_TIMEOUT_MS),
+        finalize(() => {
+          this.isDeleting = false;
+          this.deletingAccountId = null;
+        }),
+      )
+      .subscribe({
+        next: () => {
+          this.accounts = this.accounts.filter((a) => a.id !== this.accountToDelete!.id);
+          this.applyFilter();
+          
+          if (this.editingAccount?.id === this.accountToDelete!.id) {
+            this.editingAccount = null;
+          }
+          
+          this.showDeleteConfirm = false;
+          this.accountToDelete = null;
+        },
+        error: (err) => {
+          this.deleteError =
+            err?.name === 'TimeoutError'
+              ? 'The request timed out. Please try again.'
+              : err?.error?.message || 'Failed to delete user. Please try again.';
         },
       });
   }
