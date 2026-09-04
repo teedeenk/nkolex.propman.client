@@ -2,7 +2,12 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
-import { PropertyService, Property } from '../services/property.service';
+import {
+  PropertyService,
+  Property,
+  CreatePropertyRequest,
+  UpdatePropertyRequest,
+} from '../services/property.service';
 import { AuthService } from '../services/auth.service';
 
 @Component({
@@ -27,10 +32,10 @@ export class PropertiesComponent implements OnInit {
   saveError: string | null = null;
   saveSuccess: boolean = false;
 
-  newProperty: Omit<Property, 'id' | 'tenants' | 'statement'> =
-    this.emptyPropertyForm();
+  newProperty: CreatePropertyRequest = this.emptyPropertyForm();
 
   editingProperty: Property | null = null;
+  editingPropertyManagerId: string = '';
 
   constructor(
     private router: Router,
@@ -56,13 +61,19 @@ export class PropertiesComponent implements OnInit {
     });
   }
 
-  private emptyPropertyForm(): Omit<Property, 'id' | 'tenants' | 'statement'> {
+  private emptyPropertyForm(): CreatePropertyRequest {
     return {
       name: '',
       address: '',
-      propertyManager: '',
       propertyType: '',
+      propertyManager: '',
     };
+  }
+
+  managerFullName(property: Property): string {
+    return property.propertyManager
+      ? `${property.propertyManager.name} ${property.propertyManager.surname}`.trim()
+      : '';
   }
 
   applyFilters(): void {
@@ -71,7 +82,7 @@ export class PropertiesComponent implements OnInit {
         !this.searchQuery ||
         p.name.toLowerCase().includes(this.searchQuery.toLowerCase()) ||
         p.address.toLowerCase().includes(this.searchQuery.toLowerCase()) ||
-        p.propertyManager
+        this.managerFullName(p)
           .toLowerCase()
           .includes(this.searchQuery.toLowerCase());
       return matchesSearch;
@@ -101,14 +112,37 @@ export class PropertiesComponent implements OnInit {
       return;
     }
 
+    this.saveError = null;
+
     const userId = this.authService.getUserId();
-    if (!userId) {
-      this.saveError =
-        'Unable to determine property manager. Please log in again.';
+    if (userId) {
+      this.submitNewProperty(userId);
       return;
     }
 
-    this.newProperty.propertyManager = userId;
+    this.isSaving = true;
+    this.authService.loadProfile().subscribe({
+      next: (profile) => {
+        if (profile.userId) {
+          this.submitNewProperty(profile.userId);
+        } else {
+          console.error('loadProfile() returned no id:', profile);
+          this.isSaving = false;
+          this.saveError =
+            'Unable to determine property manager. Please log in again.';
+        }
+      },
+      error: (err) => {
+        console.error('loadProfile() failed:', err);
+        this.isSaving = false;
+        this.saveError =
+          'Unable to determine property manager. Please log in again.';
+      },
+    });
+  }
+
+  private submitNewProperty(propertyManagerId: string): void {
+    this.newProperty.propertyManager = propertyManagerId;
     this.isSaving = true;
     this.saveError = null;
 
@@ -132,6 +166,7 @@ export class PropertiesComponent implements OnInit {
 
   startEdit(property: Property): void {
     this.editingProperty = { ...property };
+    this.editingPropertyManagerId = property.propertyManager?.id ?? '';
     this.saveError = null;
     this.saveSuccess = false;
     this.isEditingProperty = true;
@@ -141,6 +176,7 @@ export class PropertiesComponent implements OnInit {
   cancelEdit(): void {
     this.isEditingProperty = false;
     this.editingProperty = null;
+    this.editingPropertyManagerId = '';
     this.saveError = null;
   }
 
@@ -149,7 +185,7 @@ export class PropertiesComponent implements OnInit {
     if (
       !this.editingProperty.name ||
       !this.editingProperty.address ||
-      !this.editingProperty.propertyManager
+      !this.editingPropertyManagerId
     ) {
       this.saveError = 'Property name, address and manager are required.';
       return;
@@ -158,7 +194,15 @@ export class PropertiesComponent implements OnInit {
     this.isSaving = true;
     this.saveError = null;
 
-    this.propertyService.updateProperty(this.editingProperty).subscribe({
+    const request: UpdatePropertyRequest = {
+      id: this.editingProperty.id,
+      name: this.editingProperty.name,
+      address: this.editingProperty.address,
+      propertyType: this.editingProperty.propertyType,
+      propertyManager: this.editingPropertyManagerId,
+    };
+
+    this.propertyService.updateProperty(request).subscribe({
       next: (updated) => {
         const idx = this.properties.findIndex((p) => p.id === updated.id);
         if (idx !== -1) this.properties[idx] = updated;

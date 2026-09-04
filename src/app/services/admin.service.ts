@@ -3,6 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../environments/environment';
 import { SubscriptionTier } from './auth.service';
+import { Property } from './property.service';
 
 export const AVAILABLE_ROLES = [
   'Admin',
@@ -25,9 +26,15 @@ export interface Account {
   deletedAt: string | null;
   isDeleted: boolean;
   roles: string[];
-  properties: string[] | null;
+  // Backend may return either property ids or expanded property objects here.
+  properties: (Property | string)[] | null;
   subscriptionTier: SubscriptionTier;
 }
+
+// Payload for account/update: properties are referenced by id rather than sent as full objects.
+export type UpdateAccountRequest = Omit<Account, 'properties'> & {
+  properties: string[];
+};
 
 @Injectable({
   providedIn: 'root',
@@ -41,7 +48,7 @@ export class AdminService {
     return this.http.get<Account[]>(`${this.apiUrl}/account/`);
   }
 
-  updateAccount(account: Account): Observable<Account> {
+  updateAccount(account: UpdateAccountRequest): Observable<Account> {
     return this.http.put<Account>(`${this.apiUrl}/account/update`, account);
   }
 

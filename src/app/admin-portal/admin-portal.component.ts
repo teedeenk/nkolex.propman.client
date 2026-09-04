@@ -3,8 +3,9 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { finalize, timeout } from 'rxjs';
-import { AdminService, Account, AVAILABLE_ROLES } from '../services/admin.service';
+import { AdminService, Account, AVAILABLE_ROLES, UpdateAccountRequest } from '../services/admin.service';
 import { SubscriptionTier } from '../services/auth.service';
+import { PropertyService, Property } from '../services/property.service';
 
 const REQUEST_TIMEOUT_MS = 15000;
 
@@ -28,9 +29,12 @@ export class AdminPortalComponent implements OnInit {
   isLoading: boolean = false;
   loadError: string | null = null;
 
+  properties: Property[] = [];
+
   editingAccount: Account | null = null;
   editingRoles: string[] = [];
   editingSubscriptionTier: SubscriptionTier = 'Free';
+  editingPropertyIds: string[] = [];
 
   isSaving: boolean = false;
   saveError: string | null = null;
@@ -45,10 +49,18 @@ export class AdminPortalComponent implements OnInit {
   constructor(
     private router: Router,
     private adminService: AdminService,
+    private propertyService: PropertyService,
   ) {}
 
   ngOnInit(): void {
     this.loadAccounts();
+    this.loadProperties();
+  }
+
+  private loadProperties(): void {
+    this.propertyService.getProperties().subscribe({
+      next: (data) => (this.properties = data),
+    });
   }
 
   private loadAccounts(): void {
@@ -92,10 +104,17 @@ export class AdminPortalComponent implements OnInit {
     return `${account.name} ${account.surname}`.trim();
   }
 
+  private toPropertyId(entry: Property | string): string {
+    return typeof entry === 'string' ? entry : entry.id;
+  }
+
   startEdit(account: Account): void {
     this.editingAccount = account;
     this.editingRoles = [...account.roles];
     this.editingSubscriptionTier = account.subscriptionTier;
+    this.editingPropertyIds = account.properties
+      ? account.properties.map((p) => this.toPropertyId(p))
+      : [];
     this.saveError = null;
     this.saveSuccess = false;
 
@@ -109,6 +128,7 @@ export class AdminPortalComponent implements OnInit {
   cancelEdit(): void {
     this.editingAccount = null;
     this.editingRoles = [];
+    this.editingPropertyIds = [];
     this.saveError = null;
   }
 
@@ -124,6 +144,51 @@ export class AdminPortalComponent implements OnInit {
     }
   }
 
+  isPropertyManager(): boolean {
+    return this.isRoleSelected('PropertyManager');
+  }
+
+  isPropertySelected(propertyId: string): boolean {
+    return this.editingPropertyIds.includes(propertyId);
+  }
+
+  toggleProperty(propertyId: string): void {
+    if (this.isPropertySelected(propertyId)) {
+      this.editingPropertyIds = this.editingPropertyIds.filter((id) => id !== propertyId);
+    } else {
+      this.editingPropertyIds = [...this.editingPropertyIds, propertyId];
+    }
+  }
+
+  assignedPropertyCount(account: Account): number {
+    return account.properties?.length ?? 0;
+  }
+
+  assignedProperties(): Property[] {
+    return this.properties.filter((p) => this.isPropertySelected(p.id));
+  }
+
+  assignedPropertyNames(): string {
+    return this.assignedProperties()
+      .map((p) => p.name)
+      .join(', ');
+  }
+
+  unassignedProperties(): Property[] {
+    return this.properties.filter(
+      (p) => !p.propertyManager && !this.isPropertySelected(p.id),
+    );
+  }
+
+  otherManagerProperties(): Property[] {
+    return this.properties.filter(
+      (p) =>
+        p.propertyManager &&
+        p.propertyManager.id !== this.editingAccount?.id &&
+        !this.isPropertySelected(p.id),
+    );
+  }
+
   onSubmitEdit(): void {
     if (!this.editingAccount) return;
 
@@ -135,10 +200,11 @@ export class AdminPortalComponent implements OnInit {
     this.isSaving = true;
     this.saveError = null;
 
-    const updatedAccount: Account = {
+    const updatedAccount: UpdateAccountRequest = {
       ...this.editingAccount,
       roles: this.editingRoles,
       subscriptionTier: this.editingSubscriptionTier,
+      properties: this.isPropertyManager() ? this.editingPropertyIds : [],
     };
 
     this.adminService
@@ -152,11 +218,12 @@ export class AdminPortalComponent implements OnInit {
           const idx = this.accounts.findIndex((a) => a.id === saved.id);
           if (idx !== -1) this.accounts[idx] = saved;
           this.applyFilter();
+          this.loadProperties();
           this.saveSuccess = true;
           setTimeout(() => {
             this.editingAccount = null;
             this.saveSuccess = false;
-          }, 1200);
+          }, 2000);
         },
         error: (err) => {
           this.saveError =

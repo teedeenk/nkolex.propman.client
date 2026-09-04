@@ -3,14 +3,37 @@ import { HttpClient } from '@angular/common/http';
 import { Observable, of } from 'rxjs';
 import { environment } from '../../environments/environment';
 
+export interface AccountSummary {
+  id: string;
+  name: string;
+  surname: string;
+  email: string;
+  phoneNumber: string;
+}
+
 export interface Property {
   id: string;
   name: string;
   address: string;
-  propertyManager: string;
-  tenants: string[];
-  statement: string;
   propertyType: string;
+  statement: string;
+  propertyManager: AccountSummary | null;
+  tenants: AccountSummary[];
+}
+
+export interface CreatePropertyRequest {
+  name: string;
+  address: string;
+  propertyType: string;
+  propertyManager: string;
+}
+
+export interface UpdatePropertyRequest {
+  id: string;
+  name: string;
+  address: string;
+  propertyType: string;
+  propertyManager: string;
 }
 
 @Injectable({
@@ -22,26 +45,24 @@ export class PropertyService {
   constructor(private http: HttpClient) {}
 
   getProperties(): Observable<Property[]> {
-    return this.http.get<Property[]>(`${this.apiUrl}/properties`);
+    return this.http.get<Property[]>(`${this.apiUrl}/property/properties`);
   }
 
-  addProperty(
-    property: Omit<Property, 'id' | 'tenants' | 'statement'>,
-  ): Observable<Property> {
+  addProperty(property: CreatePropertyRequest): Observable<Property> {
     return this.http.post<Property>(
       `${this.apiUrl}/property/uploadproperty`,
       property,
     );
   }
 
-  updateProperty(property: Property): Observable<Property> {
+  updateProperty(property: UpdatePropertyRequest): Observable<Property> {
     return this.http.put<Property>(
-      `${this.apiUrl}/properties/${property.id}`,
+      `${this.apiUrl}/property/${property.id}`,
       property,
     );
   }
 
   deleteProperty(id: string): Observable<void> {
-    return this.http.delete<void>(`${this.apiUrl}/properties/${id}`);
+    return this.http.delete<void>(`${this.apiUrl}/property/${id}`);
   }
 }

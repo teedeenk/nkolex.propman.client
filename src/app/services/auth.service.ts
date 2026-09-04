@@ -13,7 +13,7 @@ export interface LoginResponse {
 export type SubscriptionTier = 'Free' | 'Premium';
 
 export interface ProfileResponse {
-  id: string;
+  userId: string;
   roles: string[];
   subscriptionTier?: SubscriptionTier;
 }
@@ -77,7 +77,7 @@ export class AuthService {
   loadProfile(): Observable<ProfileResponse> {
     return this.http.get<ProfileResponse>(`${this.apiUrl}/auth/profile`).pipe(
       tap((profile) => {
-        this.setUserId(profile.id ?? '');
+        this.setUserId(profile.userId ?? '');
         this.setRoles(profile.roles ?? []);
         this.setSubscriptionTier(profile.subscriptionTier ?? 'Free');
       }),

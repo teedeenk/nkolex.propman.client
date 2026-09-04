@@ -2,19 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
-
-interface Tenant {
-  id: number;
-  name: string;
-  email: string;
-  phone: string;
-  unit: string;
-  leaseStart: string;
-  leaseEnd: string;
-  rentAmount: number;
-  status: 'active' | 'pending' | 'inactive';
-  paymentStatus: 'current' | 'late' | 'overdue';
-}
+import { TenantService, Tenant } from '../services/tenant.service';
 
 @Component({
   selector: 'app-tenants',
@@ -24,54 +12,17 @@ interface Tenant {
   styleUrls: ['./tenants.component.css'],
 })
 export class TenantsComponent implements OnInit {
-  tenants: Tenant[] = [
-    {
-      id: 1,
-      name: 'John Smith',
-      email: 'john.smith@email.com',
-      phone: '(555) 123-4567',
-      unit: 'Unit 3B',
-      leaseStart: '2025-01-01',
-      leaseEnd: '2026-01-01',
-      rentAmount: 1500,
-      status: 'active',
-      paymentStatus: 'current',
-    },
-    {
-      id: 2,
-      name: 'Sarah Johnson',
-      email: 'sarah.j@email.com',
-      phone: '(555) 234-5678',
-      unit: 'Unit 2A',
-      leaseStart: '2025-06-01',
-      leaseEnd: '2026-06-01',
-      rentAmount: 1800,
-      status: 'active',
-      paymentStatus: 'late',
-    },
-    {
-      id: 3,
-      name: 'Michael Brown',
-      email: 'mbrown@email.com',
-      phone: '(555) 345-6789',
-      unit: 'Unit 1C',
-      leaseStart: '2024-09-01',
-      leaseEnd: '2025-09-01',
-      rentAmount: 1650,
-      status: 'pending',
-      paymentStatus: 'current',
-    },
-  ];
+  tenants: Tenant[] = [];
 
   filteredTenants: Tenant[] = [];
+  isLoading: boolean = false;
   filterStatus: string = 'all';
   searchQuery: string = '';
   isAddingTenant: boolean = false;
   isEditingTenant: boolean = false;
   viewMode: 'cards' | 'table' = 'cards';
 
-  newTenant: Tenant = {
-    id: 0,
+  newTenant: Omit<Tenant, 'id'> = {
     name: '',
     email: '',
     phone: '',
@@ -84,7 +35,7 @@ export class TenantsComponent implements OnInit {
   };
 
   editingTenant: Tenant = {
-    id: 0,
+    id: '',
     name: '',
     email: '',
     phone: '',
@@ -96,10 +47,27 @@ export class TenantsComponent implements OnInit {
     paymentStatus: 'current',
   };
 
-  constructor(private router: Router) {}
+  constructor(
+    private router: Router,
+    private tenantService: TenantService,
+  ) {}
 
   ngOnInit(): void {
-    this.applyFilters();
+    this.loadTenants();
+  }
+
+  private loadTenants(): void {
+    this.isLoading = true;
+    this.tenantService.getTenants().subscribe({
+      next: (data) => {
+        this.tenants = data;
+        this.applyFilters();
+        this.isLoading = false;
+      },
+      error: () => {
+        this.isLoading = false;
+      },
+    });
   }
 
   goBack(): void {
@@ -150,7 +118,6 @@ export class TenantsComponent implements OnInit {
 
   resetNewTenant(): void {
     this.newTenant = {
-      id: 0,
       name: '',
       email: '',
       phone: '',
@@ -174,17 +141,16 @@ export class TenantsComponent implements OnInit {
       return;
     }
 
-    const tenant: Tenant = {
-      ...this.newTenant,
-      id: Math.max(...this.tenants.map((t) => t.id), 0) + 1,
-    };
-
-    this.tenants.push(tenant);
-    this.applyFilters();
-    this.hideAddTenantForm();
+    this.tenantService.addTenant(this.newTenant).subscribe({
+      next: (created) => {
+        this.tenants.push(created);
+        this.applyFilters();
+        this.hideAddTenantForm();
+      },
+    });
   }
 
-  editTenant(id: number): void {
+  editTenant(id: string): void {
     const tenant = this.tenants.find((t) => t.id === id);
     if (tenant) {
       this.editingTenant = { ...tenant };
@@ -204,18 +170,20 @@ export class TenantsComponent implements OnInit {
       return;
     }
 
-    const index = this.tenants.findIndex((t) => t.id === this.editingTenant.id);
-    if (index !== -1) {
-      this.tenants[index] = { ...this.editingTenant };
-      this.applyFilters();
-      this.cancelEdit();
-    }
+    this.tenantService.updateTenant(this.editingTenant).subscribe({
+      next: (updated) => {
+        const index = this.tenants.findIndex((t) => t.id === updated.id);
+        if (index !== -1) this.tenants[index] = updated;
+        this.applyFilters();
+        this.cancelEdit();
+      },
+    });
   }
 
   cancelEdit(): void {
     this.isEditingTenant = false;
     this.editingTenant = {
-      id: 0,
+      id: '',
       name: '',
       email: '',
       phone: '',
@@ -228,22 +196,32 @@ export class TenantsComponent implements OnInit {
     };
   }
 
-  deleteTenant(id: number): void {
+  deleteTenant(id: string): void {
     if (confirm('Are you sure you want to remove this tenant?')) {
-      this.tenants = this.tenants.filter((t) => t.id !== id);
-      this.applyFilters();
+      this.tenantService.deleteTenant(id).subscribe({
+        next: () => {
+          this.tenants = this.tenants.filter((t) => t.id !== id);
+          this.applyFilters();
+        },
+      });
     }
   }
 
   updateTenantStatus(
-    id: number,
+    id: string,
     status: 'active' | 'pending' | 'inactive',
   ): void {
     const tenant = this.tenants.find((t) => t.id === id);
-    if (tenant) {
-      tenant.status = status;
-      this.applyFilters();
-    }
+    if (!tenant) return;
+
+    const updated: Tenant = { ...tenant, status };
+    this.tenantService.updateTenant(updated).subscribe({
+      next: (result) => {
+        const index = this.tenants.findIndex((t) => t.id === id);
+        if (index !== -1) this.tenants[index] = result;
+        this.applyFilters();
+      },
+    });
   }
 
   formatCurrency(amount: number): string {
