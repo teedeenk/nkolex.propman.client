@@ -215,8 +215,10 @@ export class AdminPortalComponent implements OnInit {
       )
       .subscribe({
         next: (saved) => {
-          const idx = this.accounts.findIndex((a) => a.id === saved.id);
-          if (idx !== -1) this.accounts[idx] = saved;
+          // Some backends respond with 204 No Content, so fall back to the request payload.
+          const savedAccount: Account = saved ?? { ...updatedAccount };
+          const idx = this.accounts.findIndex((a) => a.id === savedAccount.id);
+          if (idx !== -1) this.accounts[idx] = savedAccount;
           this.applyFilter();
           this.loadProperties();
           this.saveSuccess = true;
