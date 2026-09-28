@@ -196,8 +196,8 @@ export class DashboardComponent implements OnInit {
   }
 
   navigateToProfile(): void {
-    console.log('Navigate to profile');
     this.closeMenu();
+    this.router.navigate(['/profile']);
   }
 
   navigateToSettings(): void {

@@ -1,0 +1,122 @@
+<div class="profile-container">
+  <div class="profile-content">
+    <!-- Header -->
+    <header class="profile-header">
+      <button class="back-btn" (click)="goBack()" aria-label="Go back">
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="20"
+          height="20"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+        >
+          <line x1="19" y1="12" x2="5" y2="12"></line>
+          <polyline points="12 19 5 12 12 5"></polyline>
+        </svg>
+        Back to Dashboard
+      </button>
+      <h1>Manage Profile</h1>
+      <p class="subtitle">View and update your account information</p>
+    </header>
+
+    <!-- Loading -->
+    <div class="loading-state" *ngIf="isLoading">
+      <div class="spinner"></div>
+      <p>Loading your profile...</p>
+    </div>
+
+    <!-- Load Error -->
+    <div class="error-message" *ngIf="loadError && !isLoading">
+      {{ loadError }}
+    </div>
+
+    <!-- Profile Card -->
+    <div class="profile-card" *ngIf="profile && !isLoading">
+      <div class="card-header">
+        <h2>{{ fullName() }}</h2>
+        <button class="edit-btn" *ngIf="!isEditing" (click)="startEdit()">
+          Edit Profile
+        </button>
+      </div>
+
+      <div class="success-message" *ngIf="saveSuccess">
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="24"
+          height="24"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+        >
+          <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+          <polyline points="22 4 12 14.01 9 11.01"></polyline>
+        </svg>
+        <span>Profile updated successfully!</span>
+      </div>
+
+      <div class="error-message" *ngIf="saveError">
+        {{ saveError }}
+      </div>
+
+      <!-- Read-only view -->
+      <div class="profile-details" *ngIf="!isEditing">
+        <div class="detail-row">
+          <span class="detail-label">Name</span>
+          <span class="detail-value">{{ profile.name }}</span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">Surname</span>
+          <span class="detail-value">{{ profile.surname }}</span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">Email</span>
+          <span class="detail-value">{{ profile.email }}</span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">Phone Number</span>
+          <span class="detail-value">{{ profile.phoneNumber || 'Not set' }}</span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">Subscription</span>
+          <span class="detail-value">{{ profile.subscriptionTier }}</span>
+        </div>
+      </div>
+
+      <!-- Edit form -->
+      <form class="profile-form" *ngIf="isEditing">
+        <div class="form-group">
+          <label for="name">Name</label>
+          <input id="name" type="text" [(ngModel)]="editForm.name" name="name" required />
+        </div>
+
+        <div class="form-group">
+          <label for="surname">Surname</label>
+          <input id="surname" type="text" [(ngModel)]="editForm.surname" name="surname" required />
+        </div>
+
+        <div class="form-group">
+          <label for="email">Email</label>
+          <input id="email" type="email" [(ngModel)]="editForm.email" name="email" required />
+        </div>
+
+        <div class="form-group">
+          <label for="phoneNumber">Phone Number</label>
+          <input id="phoneNumber" type="tel" [(ngModel)]="editForm.phoneNumber" name="phoneNumber" />
+        </div>
+
+        <div class="form-actions">
+          <button type="button" class="cancel-btn" (click)="cancelEdit()" [disabled]="isSaving">
+            Cancel
+          </button>
+          <button type="button" class="save-btn" (click)="onSubmitEdit()" [disabled]="isSaving">
+            <div class="spinner-small" *ngIf="isSaving"></div>
+            {{ isSaving ? 'Saving...' : 'Save Changes' }}
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>

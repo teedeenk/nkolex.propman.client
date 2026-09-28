@@ -9,6 +9,11 @@ import {
   UpdatePropertyRequest,
 } from '../services/property.service';
 import { AuthService } from '../services/auth.service';
+import {
+  AdminService,
+  Account,
+  UpdateAccountRequest,
+} from '../services/admin.service';
 
 @Component({
   selector: 'app-properties',
@@ -37,10 +42,18 @@ export class PropertiesComponent implements OnInit {
   editingProperty: Property | null = null;
   editingPropertyManagerId: string = '';
 
+  allAccounts: Account[] = [];
+  assigningProperty: Property | null = null;
+  tenantSearchQuery: string = '';
+  isLoadingAccounts: boolean = false;
+  isSavingTenantAssignment: boolean = false;
+  assignError: string | null = null;
+
   constructor(
     private router: Router,
     private propertyService: PropertyService,
     private authService: AuthService,
+    private adminService: AdminService,
   ) {}
 
   ngOnInit(): void {
@@ -74,6 +87,27 @@ export class PropertiesComponent implements OnInit {
     return property.propertyManager
       ? `${property.propertyManager.name} ${property.propertyManager.surname}`.trim()
       : '';
+  }
+
+  propertyManagerAccounts(): Account[] {
+    return this.allAccounts.filter((a) =>
+      a.roles.some((r) => r.toLowerCase() === 'propertymanager'),
+    );
+  }
+
+  editingPropertyManagerName(): string {
+    // Unchanged selection: use the name already loaded with the property, no accounts fetch needed.
+    if (
+      this.editingProperty &&
+      this.editingPropertyManagerId ===
+        (this.editingProperty.propertyManager?.id ?? '')
+    ) {
+      return this.managerFullName(this.editingProperty);
+    }
+    const account = this.allAccounts.find(
+      (a) => a.id === this.editingPropertyManagerId,
+    );
+    return account ? `${account.name} ${account.surname}`.trim() : '';
   }
 
   applyFilters(): void {
@@ -171,6 +205,7 @@ export class PropertiesComponent implements OnInit {
     this.saveSuccess = false;
     this.isEditingProperty = true;
     this.isAddingProperty = false;
+    this.beginTenantManagement(property);
   }
 
   cancelEdit(): void {
@@ -178,6 +213,7 @@ export class PropertiesComponent implements OnInit {
     this.editingProperty = null;
     this.editingPropertyManagerId = '';
     this.saveError = null;
+    this.closeAssignTenants();
   }
 
   onSubmitEdit(): void {
@@ -213,6 +249,7 @@ export class PropertiesComponent implements OnInit {
           this.isEditingProperty = false;
           this.editingProperty = null;
           this.saveSuccess = false;
+          this.closeAssignTenants();
         }, 1500);
       },
       error: () => {
@@ -235,5 +272,103 @@ export class PropertiesComponent implements OnInit {
 
   goBack(): void {
     this.router.navigate(['/dashboard']);
+  }
+
+  private toPropertyId(entry: Property | string): string {
+    return typeof entry === 'string' ? entry : entry.id;
+  }
+
+  openAssignTenants(property: Property): void {
+    this.isEditingProperty = false;
+    this.isAddingProperty = false;
+    this.beginTenantManagement(property);
+  }
+
+  private beginTenantManagement(property: Property): void {
+    this.assigningProperty = property;
+    this.tenantSearchQuery = '';
+    this.assignError = null;
+    this.loadAccounts();
+  }
+
+  closeAssignTenants(): void {
+    this.assigningProperty = null;
+    this.assignError = null;
+  }
+
+  private loadAccounts(): void {
+    this.isLoadingAccounts = true;
+    this.adminService.getAccounts().subscribe({
+      next: (data) => {
+        this.allAccounts = data;
+        this.isLoadingAccounts = false;
+      },
+      error: () => {
+        this.isLoadingAccounts = false;
+        this.assignError = 'Failed to load tenant accounts. Please try again.';
+      },
+    });
+  }
+
+  tenantAccounts(): Account[] {
+    const query = this.tenantSearchQuery.trim().toLowerCase();
+    return this.allAccounts
+      .filter((a) => a.roles.some((r) => r.toLowerCase() === 'tenant'))
+      .filter(
+        (a) =>
+          !query ||
+          `${a.name} ${a.surname}`.toLowerCase().includes(query) ||
+          a.email.toLowerCase().includes(query),
+      );
+  }
+
+  isTenantAssigned(account: Account): boolean {
+    return !!this.assigningProperty?.tenants.some((t) => t.id === account.id);
+  }
+
+  toggleTenantAssignment(account: Account): void {
+    if (!this.assigningProperty || this.isSavingTenantAssignment) return;
+
+    const propertyId = this.assigningProperty.id;
+    const currentIds = (account.properties ?? []).map((p) =>
+      this.toPropertyId(p),
+    );
+    const isAssigned = currentIds.includes(propertyId);
+    const updatedIds = isAssigned
+      ? currentIds.filter((id) => id !== propertyId)
+      : [...currentIds, propertyId];
+
+    const request: UpdateAccountRequest = {
+      ...account,
+      properties: updatedIds,
+    };
+
+    this.isSavingTenantAssignment = true;
+    this.assignError = null;
+
+    this.adminService.updateAccount(request).subscribe({
+      next: (saved) => {
+        const savedAccount: Account = saved ?? { ...account, properties: updatedIds };
+        const idx = this.allAccounts.findIndex((a) => a.id === savedAccount.id);
+        if (idx !== -1) this.allAccounts[idx] = savedAccount;
+        this.reloadPropertiesKeepingAssignOpen(propertyId);
+        this.isSavingTenantAssignment = false;
+      },
+      error: () => {
+        this.isSavingTenantAssignment = false;
+        this.assignError = 'Failed to update tenant assignment. Please try again.';
+      },
+    });
+  }
+
+  private reloadPropertiesKeepingAssignOpen(propertyId: string): void {
+    this.propertyService.getProperties().subscribe({
+      next: (data) => {
+        this.properties = data;
+        this.applyFilters();
+        this.assigningProperty =
+          this.properties.find((p) => p.id === propertyId) ?? null;
+      },
+    });
   }
 }

@@ -233,6 +233,12 @@
   border-color: #667eea;
 }
 
+.field-hint {
+  margin: 0;
+  font-size: 0.8rem;
+  color: #718096;
+}
+
 .form-actions {
   display: flex;
   justify-content: flex-end;
@@ -472,6 +478,7 @@
   color: #c53030;
 }
 
+.assign-btn,
 .edit-btn,
 .delete-btn {
   flex: 1;
@@ -486,6 +493,16 @@
   font-weight: 600;
   cursor: pointer;
   transition: all 0.2s ease;
+}
+
+.assign-btn {
+  background: #f0fff4;
+  color: #276749;
+}
+
+.assign-btn:hover {
+  background: #c6f6d5;
+  transform: translateY(-1px);
 }
 
 .edit-btn {
@@ -506,6 +523,87 @@
 .delete-btn:hover {
   background: #fed7d7;
   transform: translateY(-1px);
+}
+
+/* Assign Tenants Panel */
+.tenant-manage-section {
+  border-top: 1px solid #e2e8f0;
+  padding-top: 1rem;
+  margin-top: 0.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.tenant-manage-title {
+  margin: 0;
+  font-size: 1rem;
+  color: #2d3748;
+}
+
+.tenant-search {
+  max-width: none;
+  margin-bottom: 1rem;
+}
+
+.tenant-assign-list {
+  list-style: none;
+  margin: 0 0 1rem 0;
+  padding: 0;
+  max-height: 320px;
+  overflow-y: auto;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+}
+
+.tenant-assign-item {
+  border-bottom: 1px solid #edf2f7;
+}
+
+.tenant-assign-item:last-child {
+  border-bottom: none;
+}
+
+.tenant-assign-item label {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.75rem 1rem;
+  cursor: pointer;
+}
+
+.tenant-assign-item label:hover {
+  background: #f7fafc;
+}
+
+.tenant-assign-item input[type='checkbox'] {
+  width: 1.1rem;
+  height: 1.1rem;
+  flex-shrink: 0;
+  cursor: pointer;
+}
+
+.tenant-info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+}
+
+.tenant-name {
+  font-weight: 600;
+  color: #2d3748;
+}
+
+.tenant-email {
+  font-size: 0.85rem;
+  color: #718096;
+}
+
+.tenant-assign-empty {
+  padding: 1.5rem 1rem;
+  text-align: center;
+  color: #94a3b8;
+  font-size: 0.9rem;
 }
 
 /* Responsive */

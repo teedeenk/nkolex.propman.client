@@ -13,6 +13,7 @@ import { ProfitLossComponent } from './profit-loss/profit-loss.component';
 import { BalanceSheetComponent } from './balance-sheet/balance-sheet.component';
 import { PropertiesComponent } from './properties/properties.component';
 import { AdminPortalComponent } from './admin-portal/admin-portal.component';
+import { ManageProfileComponent } from './manage-profile/manage-profile.component';
 import { UpgradeComponent } from './upgrade/upgrade.component';
 import { DisclaimerComponent } from './disclaimer/disclaimer.component';
 import { TermsComponent } from './terms/terms.component';
@@ -34,6 +35,7 @@ export const routes: Routes = [
   { path: 'balance-sheet', component: BalanceSheetComponent, canActivate: [authGuard, premiumGuard] },
   { path: 'properties', component: PropertiesComponent, canActivate: [authGuard] },
   { path: 'admin', component: AdminPortalComponent, canActivate: [authGuard, adminGuard] },
+  { path: 'profile', component: ManageProfileComponent, canActivate: [authGuard] },
   { path: 'upgrade', component: UpgradeComponent, canActivate: [authGuard] },
   { path: 'disclaimer', component: DisclaimerComponent },
   { path: 'terms', component: TermsComponent },

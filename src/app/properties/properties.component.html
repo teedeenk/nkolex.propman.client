@@ -274,17 +274,35 @@
         </div>
         <div class="form-row">
           <div class="form-group full-width">
-            <label for="editPropertyManager">Property Manager ID *</label>
-            <input
-              type="text"
+            <label for="editPropertyManager">Property Manager *</label>
+            <select
               id="editPropertyManager"
               [(ngModel)]="editingPropertyManagerId"
               name="editPropertyManager"
-              placeholder="Property manager account id"
               required
-            />
+              [disabled]="isLoadingAccounts"
+            >
+              <option value="" disabled>
+                {{ isLoadingAccounts ? "Loading managers..." : "Select a property manager..." }}
+              </option>
+              <option
+                *ngFor="let account of propertyManagerAccounts()"
+                [value]="account.id"
+              >
+                {{ account.name }} {{ account.surname }} ({{ account.email }})
+              </option>
+            </select>
+            <p class="field-hint" *ngIf="editingPropertyManagerId">
+              Currently assigned: {{ editingPropertyManagerName() }}
+            </p>
           </div>
         </div>
+
+        <div class="tenant-manage-section" *ngIf="assigningProperty">
+          <h3 class="tenant-manage-title">Tenants</h3>
+          <ng-container *ngTemplateOutlet="tenantAssignBody"></ng-container>
+        </div>
+
         <div class="form-actions">
           <button
             type="button"
@@ -306,6 +324,101 @@
         </div>
       </form>
     </div>
+
+    <!-- Assign Tenants Panel (quick action, outside of edit) -->
+    <div class="form-card" *ngIf="assigningProperty && !isEditingProperty">
+      <div class="card-header">
+        <h2>Assign Tenants &mdash; {{ assigningProperty.name }}</h2>
+        <button class="close-btn" (click)="closeAssignTenants()">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="20"
+            height="20"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+          >
+            <line x1="18" y1="6" x2="6" y2="18"></line>
+            <line x1="6" y1="6" x2="18" y2="18"></line>
+          </svg>
+        </button>
+      </div>
+
+      <ng-container *ngTemplateOutlet="tenantAssignBody"></ng-container>
+
+      <div class="form-actions">
+        <button type="button" class="cancel-btn" (click)="closeAssignTenants()">
+          Close
+        </button>
+      </div>
+    </div>
+
+    <!-- Shared tenant assignment body, rendered either standalone or embedded in the edit dialog -->
+    <ng-template #tenantAssignBody>
+      <div class="error-message" *ngIf="assignError">
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="20"
+          height="20"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+        >
+          <circle cx="12" cy="12" r="10"></circle>
+          <line x1="12" y1="8" x2="12" y2="12"></line>
+          <line x1="12" y1="16" x2="12.01" y2="16"></line>
+        </svg>
+        {{ assignError }}
+      </div>
+
+      <div class="search-box tenant-search">
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="20"
+          height="20"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+        >
+          <circle cx="11" cy="11" r="8"></circle>
+          <path d="m21 21-4.35-4.35"></path>
+        </svg>
+        <input
+          type="text"
+          placeholder="Search tenant accounts..."
+          [(ngModel)]="tenantSearchQuery"
+          name="tenantSearch"
+        />
+      </div>
+
+      <div class="loading-state" *ngIf="isLoadingAccounts">
+        <div class="spinner-small"></div>
+        <p>Loading tenant accounts...</p>
+      </div>
+
+      <ul class="tenant-assign-list" *ngIf="!isLoadingAccounts">
+        <li *ngFor="let account of tenantAccounts()" class="tenant-assign-item">
+          <label>
+            <input
+              type="checkbox"
+              [checked]="isTenantAssigned(account)"
+              [disabled]="isSavingTenantAssignment"
+              (change)="toggleTenantAssignment(account)"
+            />
+            <span class="tenant-info">
+              <span class="tenant-name">{{ account.name }} {{ account.surname }}</span>
+              <span class="tenant-email">{{ account.email }}</span>
+            </span>
+          </label>
+        </li>
+        <li *ngIf="tenantAccounts().length === 0" class="tenant-assign-empty">
+          No tenant accounts found.
+        </li>
+      </ul>
+    </ng-template>
 
     <!-- Loading -->
     <div class="loading-state" *ngIf="isLoading">
@@ -382,6 +495,23 @@
             <td>{{ property.tenants.length }}</td>
             <td class="actions-col">
               <div class="table-actions">
+                <button class="assign-btn" (click)="openAssignTenants(property)">
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="16"
+                    height="16"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                  >
+                    <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path>
+                    <circle cx="9" cy="7" r="4"></circle>
+                    <path d="M22 21v-2a4 4 0 0 0-3-3.87"></path>
+                    <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+                  </svg>
+                  Tenants
+                </button>
                 <button class="edit-btn" (click)="startEdit(property)">
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
