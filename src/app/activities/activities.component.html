@@ -25,6 +25,18 @@
     <div class="controls-section">
       <div class="filters">
         <div class="filter-group">
+          <label for="propertyFilter">Property:</label>
+          <select
+            id="propertyFilter"
+            [(ngModel)]="filterPropertyId"
+            (change)="onFilterChange()"
+          >
+            <option value="all">All</option>
+            <option *ngFor="let property of properties" [value]="property.id">
+              {{ property.name }}
+            </option>
+          </select>
+        </div>        <div class="filter-group">
           <label for="statusFilter">Status:</label>
           <select
             id="statusFilter"
@@ -32,24 +44,10 @@
             (change)="onFilterChange()"
           >
             <option value="all">All</option>
+            <option value="draft">Draft</option>
             <option value="upcoming">Upcoming</option>
             <option value="completed">Completed</option>
             <option value="cancelled">Cancelled</option>
-          </select>
-        </div>
-        <div class="filter-group">
-          <label for="typeFilter">Type:</label>
-          <select
-            id="typeFilter"
-            [(ngModel)]="filterType"
-            (change)="onFilterChange()"
-          >
-            <option value="all">All Types</option>
-            <option value="maintenance">Maintenance</option>
-            <option value="inspection">Inspection</option>
-            <option value="meeting">Meeting</option>
-            <option value="payment">Payment</option>
-            <option value="other">Other</option>
           </select>
         </div>
       </div>
@@ -96,22 +94,26 @@
             <input
               type="text"
               id="title"
-              [(ngModel)]="newActivity.title"
-              name="title"
+              [(ngModel)]="newActivity.name"
+              name="name"
               placeholder="e.g., Plumber Visit"
               required
             />
           </div>
-          <div class="form-group">
-            <label for="type">Type *</label>
-            <select id="type" [(ngModel)]="newActivity.type" name="type">
-              <option value="maintenance">Maintenance</option>
-              <option value="inspection">Inspection</option>
-              <option value="meeting">Meeting</option>
-              <option value="payment">Payment</option>
-              <option value="other">Other</option>
-            </select>
-          </div>
+        </div>
+        <div class="form-group">
+          <label for="property">Property *</label>
+          <select
+            id="property"
+            [(ngModel)]="newActivity.propertyId"
+            name="propertyId"
+            required
+          >
+            <option value="" disabled>Select a property...</option>
+            <option *ngFor="let property of properties" [value]="property.id">
+              {{ property.name }}
+            </option>
+          </select>
         </div>
         <div class="form-group">
           <label for="description">Description</label>
@@ -161,8 +163,26 @@
     </div>
 
     <!-- Activities List -->
+    <div *ngIf="errorMessage" class="error-banner" role="alert">
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        width="20"
+        height="20"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2"
+      >
+        <circle cx="12" cy="12" r="10"></circle>
+        <line x1="12" y1="8" x2="12" y2="12"></line>
+        <line x1="12" y1="16" x2="12.01" y2="16"></line>
+      </svg>
+      <span class="error-text">{{ errorMessage }}</span>
+      <button type="button" class="error-dismiss" (click)="dismissError()" aria-label="Dismiss">×</button>
+    </div>
+    <div *ngIf="isLoading" class="no-activities"><p>Loading activities...</p></div>
     <div class="activities-list">
-      <div *ngIf="filteredActivities.length === 0" class="no-activities">
+      <div *ngIf="!isLoading && filteredActivities.length === 0" class="no-activities">
         <svg
           xmlns="http://www.w3.org/2000/svg"
           width="64"
@@ -184,20 +204,18 @@
       <div
         *ngFor="let activity of filteredActivities"
         class="activity-card"
-        [ngClass]="getStatusClass(activity.status)"
+        [ngClass]="getStatusClass(activity)"
       >
-        <div class="activity-icon" [ngClass]="getTypeClass(activity.type)">
-          <span>{{ getTypeIcon(activity.type) }}</span>
+        <div class="activity-icon other">
+          <span>📋</span>
         </div>
         <div class="activity-content">
           <div class="activity-header">
-            <h3>{{ activity.title }}</h3>
+            <h3>{{ activity.name }}</h3>
             <div class="activity-badges">
-              <span class="type-badge" [ngClass]="activity.type">{{
-                activity.type
-              }}</span>
-              <span class="status-badge" [ngClass]="activity.status">{{
-                activity.status
+              <span class="type-badge">Activity</span>
+              <span class="status-badge" [ngClass]="getStatus(activity)">{{
+                getStatus(activity)
               }}</span>
             </div>
           </div>
@@ -239,7 +257,7 @@
         </div>
         <div class="activity-actions">
           <button
-            *ngIf="activity.status === 'upcoming'"
+            *ngIf="getStatus(activity) === 'upcoming'"
             class="action-btn complete"
             (click)="updateActivityStatus(activity.id, 'completed')"
           >
@@ -257,7 +275,7 @@
             Complete
           </button>
           <button
-            *ngIf="activity.status === 'upcoming'"
+            *ngIf="getStatus(activity) === 'upcoming'"
             class="action-btn cancel"
             (click)="updateActivityStatus(activity.id, 'cancelled')"
           >
@@ -276,7 +294,7 @@
             Cancel
           </button>
           <button
-            *ngIf="activity.status === 'completed'"
+            *ngIf="getStatus(activity) === 'completed'"
             class="action-btn undo"
             (click)="updateActivityStatus(activity.id, 'upcoming')"
           >

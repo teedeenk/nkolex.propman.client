@@ -586,7 +586,7 @@
                 class="activity-info"
                 *ngIf="getCurrentActivity() as activity"
               >
-                <p class="stat-value">{{ activity.title }}</p>
+                <p class="stat-value">{{ activity.name }}</p>
                 <p class="stat-description">
                   {{ formatActivityDate(activity.date) }} at
                   {{ formatActivityTime(activity.time) }}

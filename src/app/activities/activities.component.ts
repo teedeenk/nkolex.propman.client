@@ -1,8 +1,15 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { HttpErrorResponse } from '@angular/common/http';
 import { Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
-import { ActivityService, Activity } from '../services/activity.service';
+import {
+  ActivityService,
+  Activity,
+  CreateActivityRequest,
+} from '../services/activity.service';
+import { AuthService } from '../services/auth.service';
+import { PropertyService, Property } from '../services/property.service';
 
 @Component({
   selector: 'app-activities',
@@ -14,29 +21,105 @@ import { ActivityService, Activity } from '../services/activity.service';
 export class ActivitiesComponent implements OnInit {
   activities: Activity[] = [];
   filteredActivities: Activity[] = [];
-  filterStatus: string = 'all';
-  filterType: string = 'all';
+  filterStatus: 'all' | 'draft' | 'upcoming' | 'completed' | 'cancelled' =
+    'all';
+  filterPropertyId = 'all';
   isAddingActivity: boolean = false;
+  isLoading = false;
+  errorMessage = '';
+  properties: Property[] = [];
 
-  newActivity: Activity = {
-    id: 0,
-    title: '',
-    description: '',
-    date: '',
-    time: '',
-    type: 'maintenance',
-    status: 'upcoming',
-  };
+  newActivity!: CreateActivityRequest;
 
   constructor(
     private router: Router,
     private activityService: ActivityService,
-  ) {}
+    private authService: AuthService,
+    private propertyService: PropertyService,
+  ) {
+    this.newActivity = this.emptyActivity();
+  }
 
   ngOnInit(): void {
-    this.activityService.getActivities().subscribe((activities) => {
-      this.activities = activities;
-      this.applyFilters();
+    this.loadActivities();
+    this.loadProperties();
+  }
+
+  private emptyActivity(): CreateActivityRequest {
+    return {
+      name: '',
+      description: '',
+      date: '',
+      time: '',
+      draft: false,
+      active: true,
+      done: false,
+      userId: this.authService.getUserId(),
+      propertyId: '',
+    };
+  }
+
+  private toErrorMessage(error: unknown, fallback: string): string {
+    console.error(fallback, error);
+    if (!(error instanceof HttpErrorResponse)) {
+      return fallback;
+    }
+    if (error.status === 0) {
+      return 'Unable to reach the server. Please check your connection.';
+    }
+    if (error.status === 401 || error.status === 403) {
+      return 'Your session has expired or you do not have access. Please sign in again.';
+    }
+    const body = error.error;
+    if (typeof body === 'string' && body.trim()) {
+      return body;
+    }
+    if (body?.message) {
+      return body.message;
+    }
+    if (body?.errors) {
+      const messages = (Object.values(body.errors) as string[][]).flat();
+      if (messages.length) {
+        return messages.join(' ');
+      }
+    }
+    return body?.title || fallback;
+  }
+
+  dismissError(): void {
+    this.errorMessage = '';
+  }
+
+  private loadProperties(): void {
+    this.propertyService.getProperties().subscribe({
+      next: (properties) => {
+        this.properties = properties;
+      },
+      error: (error) => {
+        this.errorMessage = this.toErrorMessage(
+          error,
+          'Properties could not be loaded. Please try again.',
+        );
+      },
+    });
+  }
+
+  private loadActivities(): void {
+    this.isLoading = true;
+    this.errorMessage = '';
+    this.activityService.getActivities().subscribe({
+      next: (activities) => {
+        this.activities = activities.filter((activity) => !activity.isDeleted);
+        this.applyFilters();
+        this.isLoading = false;
+      },
+      error: (error) => {
+        this.errorMessage = this.toErrorMessage(
+          error,
+          'Activities could not be loaded. Please try again.',
+        );
+        this.isLoading = false;
+      },
     });
   }
 
@@ -47,10 +130,13 @@ export class ActivitiesComponent implements OnInit {
   applyFilters(): void {
     this.filteredActivities = this.activities.filter((activity) => {
       const statusMatch =
-        this.filterStatus === 'all' || activity.status === this.filterStatus;
-      const typeMatch =
-        this.filterType === 'all' || activity.type === this.filterType;
-      return statusMatch && typeMatch;
+        this.filterStatus === 'all' ||
+        this.getStatus(activity) === this.filterStatus;
+      return (
+        statusMatch &&
+        (this.filterPropertyId === 'all' ||
+          activity.propertyId === this.filterPropertyId)
+      );
     });
 
     this.filteredActivities.sort((a, b) => {
@@ -75,47 +161,88 @@ export class ActivitiesComponent implements OnInit {
   }
 
   resetNewActivity(): void {
-    this.newActivity = {
-      id: 0,
-      title: '',
-      description: '',
-      date: '',
-      time: '',
-      type: 'maintenance',
-      status: 'upcoming',
-    };
+    this.newActivity = this.emptyActivity();
   }
 
   addActivity(): void {
     if (
-      !this.newActivity.title ||
+      !this.newActivity.name ||
       !this.newActivity.date ||
-      !this.newActivity.time
+      !this.newActivity.time ||
+      !this.newActivity.propertyId
     ) {
       alert('Please fill in all required fields');
       return;
     }
 
-    const activity: Activity = {
+    const request: CreateActivityRequest = {
       ...this.newActivity,
-      id: this.activityService.getNextId(),
+      userId: this.authService.getUserId(),
     };
 
-    this.activityService.addActivity(activity);
-    this.hideAddActivityForm();
+    this.activityService.createActivity(request).subscribe({
+      next: (activity) => {
+        this.activities.push(activity);
+        this.applyFilters();
+        this.hideAddActivityForm();
+      },
+      error: (error) => {
+        this.errorMessage = this.toErrorMessage(
+          error,
+          'Activity could not be created. Please try again.',
+        );
+      },
+    });
   }
 
-  deleteActivity(id: number): void {
+  deleteActivity(id: string): void {
     if (confirm('Are you sure you want to delete this activity?')) {
-      this.activityService.deleteActivity(id);
+      this.activityService.deleteActivity(id).subscribe({
+        next: () => {
+          this.activities = this.activities.filter((activity) => activity.id !== id);
+          this.applyFilters();
+        },
+        error: (error) => {
+          this.errorMessage = this.toErrorMessage(
+            error,
+            'Activity could not be deleted. Please try again.',
+          );
+        },
+      });
     }
   }
 
   updateActivityStatus(
-    id: number,
+    id: string,
     status: 'upcoming' | 'completed' | 'cancelled',
   ): void {
-    this.activityService.updateActivity(id, { status });
+    const activity = this.activities.find((item) => item.id === id);
+    if (!activity) {
+      return;
+    }
+
+    const updated: Activity = {
+      ...activity,
+      draft: false,
+      active: status !== 'cancelled',
+      done: status === 'completed',
+    };
+
+    this.activityService.updateActivity(updated).subscribe({
+      next: (result) => {
+        const index = this.activities.findIndex((item) => item.id === id);
+        if (index !== -1) {
+          this.activities[index] = result;
+          this.applyFilters();
+        }
+      },
+      error: (error) => {
+        this.errorMessage = this.toErrorMessage(
+          error,
+          'Activity could not be updated. Please try again.',
+        );
+      },
+    });
   }
 
   formatDate(dateStr: string): string {
@@ -147,11 +274,19 @@ export class ActivitiesComponent implements OnInit {
     return icons[type] || '📋';
   }
 
-  getStatusClass(status: string): string {
-    return status;
+  getStatus(
+    activity: Activity,
+  ): 'draft' | 'upcoming' | 'completed' | 'cancelled' {
+    if (activity.draft) {
+      return 'draft';
+    }
+    if (activity.done) {
+      return 'completed';
+    }
+    return activity.active ? 'upcoming' : 'cancelled';
   }
 
-  getTypeClass(type: string): string {
-    return type;
+  getStatusClass(activity: Activity): string {
+    return this.getStatus(activity);
   }
 }

@@ -1,89 +1,70 @@
 import { Injectable } from '@angular/core';
-import { BehaviorSubject, Observable } from 'rxjs';
+import { HttpClient } from '@angular/common/http';
+import { Observable, forkJoin, of } from 'rxjs';
+import { map, switchMap } from 'rxjs/operators';
+import { environment } from '../../environments/environment';
+import { PropertyService } from './property.service';
 
 export interface Activity {
-  id: number;
-  title: string;
+  id: string;
+  name: string;
   description: string;
   date: string;
   time: string;
-  type: 'maintenance' | 'inspection' | 'meeting' | 'payment' | 'other';
-  status: 'upcoming' | 'completed' | 'cancelled';
+  draft: boolean;
+  active: boolean;
+  done: boolean;
+  isDeleted: boolean;
+  userId: string;
+  propertyId: string;
 }
+
+export type CreateActivityRequest = Omit<Activity, 'id' | 'isDeleted'>;
 
 @Injectable({
   providedIn: 'root',
 })
 export class ActivityService {
-  private activities: Activity[] = [
-    {
-      id: 1,
-      title: 'Electrician Visit',
-      description: 'Fix electrical issues in Unit 3B',
-      date: '2026-02-10',
-      time: '10:00',
-      type: 'maintenance',
-      status: 'upcoming',
-    },
-    {
-      id: 2,
-      title: 'Property Inspection',
-      description: 'Quarterly inspection of all units',
-      date: '2026-02-15',
-      time: '09:00',
-      type: 'inspection',
-      status: 'upcoming',
-    },
-    {
-      id: 3,
-      title: 'Plumbing Repair',
-      description: 'Fixed leaking pipe in Unit 2A',
-      date: '2026-01-28',
-      time: '14:00',
-      type: 'maintenance',
-      status: 'completed',
-    },
-  ];
+  private apiUrl = `${environment.apiUrl}/activity`;
 
-  private activitiesSubject = new BehaviorSubject<Activity[]>(this.activities);
+  constructor(
+    private http: HttpClient,
+    private propertyService: PropertyService,
+  ) {}
 
+  getActivitiesForProperty(propertyId: string): Observable<Activity[]> {
+    return this.http.get<Activity[]>(`${this.apiUrl}/activities/${propertyId}`);
+  }
+
+  // The API only returns activities per property, so aggregate across all of the user's properties.
   getActivities(): Observable<Activity[]> {
-    return this.activitiesSubject.asObservable();
+    return this.propertyService.getProperties().pipe(
+      switchMap((properties) =>
+        properties.length
+          ? forkJoin(
+              properties.map((property) =>
+                this.getActivitiesForProperty(property.id),
+              ),
+            )
+          : of([] as Activity[][]),
+      ),
+      map((results) => results.flat()),
+    );
   }
 
-  getActivitiesSync(): Activity[] {
-    return [...this.activities];
+  getActivity(id: string): Observable<Activity> {
+    return this.http.get<Activity>(`${this.apiUrl}/${id}`);
   }
 
-  getUpcomingActivities(): Activity[] {
-    return this.activities
-      .filter((activity) => activity.status === 'upcoming')
-      .sort((a, b) => {
-        const dateA = new Date(a.date + ' ' + a.time);
-        const dateB = new Date(b.date + ' ' + b.time);
-        return dateA.getTime() - dateB.getTime();
-      });
+  createActivity(activity: CreateActivityRequest): Observable<Activity> {
+    return this.http.post<Activity>(`${this.apiUrl}/createactivity`, activity);
   }
 
-  addActivity(activity: Activity): void {
-    this.activities.push(activity);
-    this.activitiesSubject.next([...this.activities]);
+  updateActivity(activity: Activity): Observable<Activity> {
+    return this.http.put<Activity>(`${this.apiUrl}/updateactivity`, activity);
   }
 
-  updateActivity(id: number, updates: Partial<Activity>): void {
-    const index = this.activities.findIndex((a) => a.id === id);
-    if (index !== -1) {
-      this.activities[index] = { ...this.activities[index], ...updates };
-      this.activitiesSubject.next([...this.activities]);
-    }
-  }
-
-  deleteActivity(id: number): void {
-    this.activities = this.activities.filter((a) => a.id !== id);
-    this.activitiesSubject.next([...this.activities]);
-  }
-
-  getNextId(): number {
-    return Math.max(...this.activities.map((a) => a.id), 0) + 1;
+  deleteActivity(id: string): Observable<void> {
+    return this.http.delete<void>(`${this.apiUrl}/${id}`);
   }
 }

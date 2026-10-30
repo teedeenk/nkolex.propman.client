@@ -96,7 +96,7 @@ export class DashboardComponent implements OnInit {
   private loadActivities(): void {
     this.activityService.getActivities().subscribe((activities) => {
       this.upcomingActivities = activities
-        .filter((activity) => activity.status === 'upcoming')
+        .filter((activity) => activity.active && !activity.done && !activity.draft)
         .sort((a, b) => {
           const dateA = new Date(a.date + ' ' + a.time);
           const dateB = new Date(b.date + ' ' + b.time);
