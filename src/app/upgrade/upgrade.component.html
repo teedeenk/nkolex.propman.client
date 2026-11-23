@@ -17,12 +17,55 @@
         </svg>
         Back to Dashboard
       </button>
-      <h1>Upgrade to Premium</h1>
+      <h1>{{ isPremium ? 'Manage Your Plan' : 'Upgrade to Premium' }}</h1>
       <p class="subtitle">
-        Unlock Accounting, Activities and Financial Statements
+        {{
+          isPremium
+            ? 'You are currently on the Premium plan'
+            : 'Unlock Accounting, Activities and Financial Statements'
+        }}
       </p>
     </header>
 
+    @if (isPremium) {
+      <div class="option-card">
+        <h2>Downgrade to Free</h2>
+        <p class="option-description">
+          Downgrading removes access to Accounting, Activities and Financial
+          Statements. Your data is kept, and you can upgrade again at any time.
+        </p>
+
+        @if (downgradeError) {
+          <div class="downgrade-error" role="alert">{{ downgradeError }}</div>
+        }
+
+        @if (!isConfirmingDowngrade) {
+          <button class="downgrade-btn" (click)="startDowngrade()">
+            Downgrade to Free
+          </button>
+        } @else {
+          <p class="option-description">
+            <strong>Are you sure you want to downgrade?</strong>
+          </p>
+          <div class="downgrade-actions">
+            <button
+              class="downgrade-btn"
+              (click)="confirmDowngrade()"
+              [disabled]="isDowngrading"
+            >
+              {{ isDowngrading ? 'Downgrading...' : 'Yes, downgrade' }}
+            </button>
+            <button
+              class="keep-plan-btn"
+              (click)="cancelDowngrade()"
+              [disabled]="isDowngrading"
+            >
+              Keep Premium
+            </button>
+          </div>
+        }
+      </div>
+    } @else {
     <!-- Under Construction Notice -->
     <div class="notice-card">
       <svg
@@ -128,6 +171,7 @@
         </div>
       </dl>
     </div>
+    }
 
     <!-- Donate Card -->
     <div class="option-card donate-card">
